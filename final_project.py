@@ -9,3 +9,9 @@ from helpers import *
 data_train = pd.read_csv('train.csv')
 data_test  = pd.read_csv('test.csv')
 
+# Clean the data: Change male and female strings to 0 or 1
+data_train['Sex'] = data_train['Sex'].map( {'female': 1, 'male': 0} ).astype(int)
+data_test['Sex']  = data_test['Sex'].map( {'female': 1, 'male': 0} ).astype(int)
+
+data_train.head()
+data_test.head()
