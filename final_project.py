@@ -7,10 +7,6 @@ from helpers import *
 from sklearn.model_selection import cross_val_score
 from sklearn import svm
 
-
-
-
-
 # Load the titanic training and testing data
 data_train = pd.read_csv('train.csv')
 data_test  = pd.read_csv('test.csv')
@@ -56,10 +52,19 @@ for dataset in combined_data:
 X_train = data_train.drop("Survived", axis=1)
 Y_train = data_train["Survived"]
 
-clf = svm.SVC(kernel='linear', C=1)
-
 # Loop through classifiers and perform k-fold cross validation
+classifiers = [svm.SVC(kernel='linear', C=1)]
+class_names = ['SVM']
 
-scores = cross_val_score(clf, X_train, Y_train, cv=5)
+print("Classifier k-fold score")
+for i,clf in enumerate(classifiers):
+    scores = cross_val_score(clf, X_train, Y_train, cv=5)
+    print("%s %.2f" % (class_names[i],scores.mean()*100))
+    
+    # Train with all the data
+    clf.fit(X_train,Y_train)
+    
+    # Predict the Results with actual test data and generate CSV that 
+    # Kaggle needs to actually score
 
 
