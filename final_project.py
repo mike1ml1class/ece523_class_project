@@ -17,16 +17,27 @@ data_test.info()
 # Clean the data: 
 # Age, Cabin, and Embarked have missing data
 # Cabin has too much missing data to be useful, so that will be dropped
+# PassengerID, Name, and Ticket will also be dropped
 # Take average of age and replace missing age values with average
 # Embared will be changed to most common occurance
 # Change male and female strings to 0 or 1
 # Changed point of depature strings to 0, 1, or 2. 
+# This will leave us with numeric data to use in ML models
 
+# Drop irrelevent data
 data_train = data_train.drop(['Cabin'], axis=1)
-data_test  = data_test.drop(['Cabin'], axis=1)
+data_test  =  data_test.drop(['Cabin'], axis=1)
+data_train = data_train.drop(['PassengerId'], axis=1)
+data_test  =  data_test.drop(['PassengerId'], axis=1)
+data_train = data_train.drop(['Ticket'], axis=1)
+data_test  =  data_test.drop(['Ticket'], axis=1)
+data_train = data_train.drop(['Name'], axis=1)
+data_test  =  data_test.drop(['Name'], axis=1)
+
 data_train.info()
 combined_data = [data_train,data_test]
 
+# Further clean the data 
 most_common_port = data_train.Embarked.dropna().mode()[0]
 average_age      = data_train.Age.dropna().mean()
 for dataset in combined_data:
