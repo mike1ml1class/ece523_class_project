@@ -7,9 +7,14 @@ from helpers import *
 from sklearn.model_selection import cross_val_score
 from sklearn import svm
 
+GEN_OUTPUT = False
+
 # Load the titanic training and testing data
 data_train = pd.read_csv('train.csv')
 data_test  = pd.read_csv('test.csv')
+
+data_train_orig = data_train
+data_test_orig  = data_test
 
 data_train.info()
 print('_________________________________')
@@ -25,6 +30,8 @@ data_test.info()
 # Change male and female strings to 0 or 1
 # Changed point of depature strings to 0, 1, or 2. 
 # This will leave us with numeric data to use in ML models
+# Test data has a missing value for Fare, this will be replaced
+# by the average fare
 
 # Drop irrelevent data
 data_train = data_train.drop(['Cabin'], axis=1)
@@ -42,8 +49,10 @@ combined_data = [data_train,data_test]
 # Further clean the data 
 most_common_port = data_train.Embarked.dropna().mode()[0]
 average_age      = data_train.Age.dropna().mean()
+average_fare     = data_train.Fare.dropna().mean()
 for dataset in combined_data:
     dataset['Age']      = dataset['Age'].fillna(average_age)
+    dataset['Fare'] = dataset['Fare'].fillna(average_fare)
     dataset['Sex']      = dataset['Sex'].map( {'female': 1, 'male': 0} ).astype(int)
     dataset['Embarked'] = dataset['Embarked'].fillna(most_common_port)
     dataset['Embarked'] = dataset['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
@@ -51,6 +60,7 @@ for dataset in combined_data:
 
 X_train = data_train.drop("Survived", axis=1)
 Y_train = data_train["Survived"]
+X_test  = data_test
 
 # Loop through classifiers and perform k-fold cross validation
 classifiers = [svm.SVC(kernel='linear', C=1)]
@@ -66,5 +76,12 @@ for i,clf in enumerate(classifiers):
     
     # Predict the Results with actual test data and generate CSV that 
     # Kaggle needs to actually score
+    results = clf.predict(X_test)
 
-
+submission = pd.DataFrame({
+        "PassengerId": data_test_orig["PassengerId"],
+        "Survived": results
+    })
+    
+if GEN_OUTPUT:
+    submission.to_csv('./output/submission.csv', index=False)
