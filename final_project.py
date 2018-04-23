@@ -66,12 +66,14 @@ X_test  = data_test
 classifiers = [svm.SVC(kernel='linear', C=1)]
 class_names = ['SVM']
 
+classifier_scores = []
 print("Classifier k-fold score")
 for i,clf in enumerate(classifiers):
     scores = cross_val_score(clf, X_train, Y_train, cv=5)
     print("%s %.2f" % (class_names[i],scores.mean()*100))
+    classifier_scores.append(scores.mean()*100)
     
-    # Train with all the data
+    # Train with all the data?
     clf.fit(X_train,Y_train)
     
     # Predict the Results with actual test data and generate CSV that 
