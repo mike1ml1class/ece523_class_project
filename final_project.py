@@ -86,4 +86,5 @@ if PERFORM_CLASS:
         submission.to_csv('./output/submission.csv', index=False)
 
 if NEURAL_NET:
+
     dnn.analysis()

@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -15,14 +18,14 @@ def gen_mvg(mu_1,mu_2,cov_1,cov_2,N):
 # Helper function to check accuracy of results
 def check_accuracy(pred_results,test_truth):
     pass_fail = np.zeros((pred_results.shape[0],))
-    for i in range(test_truth.shape[0]):   
+    for i in range(test_truth.shape[0]):
         if pred_results[i] == test_truth[i]:
             pass_fail[i] = 1
         else:
             pass_fail[i] = 0
     accuracy = 100*pass_fail.sum()/pass_fail.shape[0]
     return accuracy, pass_fail
-    
+
 
 def plot_tr_data(X,Y):
     idx0 = np.where(Y==0)
@@ -34,10 +37,10 @@ def plot_tr_data(X,Y):
 def plot_class_res(X_test,pf_idxs):
     idx_p1 = pf_idxs[0]
     idx_f1 = pf_idxs[1]
-    
+
     idx_p2 = pf_idxs[2]
     idx_f2 = pf_idxs[3]
-    
+
     plt.scatter(X_test[idx_p1, 0], X_test[idx_p1, 1],c='blue',marker='o')
     plt.scatter(X_test[idx_p2, 0], X_test[idx_p2, 1],c='red',marker='s')
     plt.scatter(X_test[idx_f1, 0], X_test[idx_f1, 1],c='black',marker='o')
@@ -55,7 +58,7 @@ def get_idxs(results,pass_fail,c_idxs):
     idx_f2 = np.intersect1d(idx_f,idx_g2)
     idx_list = [idx_p1,idx_f1,idx_p2,idx_f2]
     return idx_list
-    
+
 def make_meshgrid(x, y, h=.02):
     """Create a mesh of points to plot in
 
