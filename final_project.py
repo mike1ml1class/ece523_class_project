@@ -8,10 +8,11 @@ from sklearn.model_selection import cross_val_score
 from sklearn import svm
 from sklearn.decomposition import PCA
 import sys
+import tensorflow as tf
 
-
-GEN_OUTPUT = False
+GEN_OUTPUT    = False
 PERFORM_CLASS = True
+NEURAL_NET    = True
 
 # Load the titanic training and testing data
 data_train = pd.read_csv('train.csv')
@@ -191,3 +192,5 @@ if PERFORM_CLASS:
     if GEN_OUTPUT:
         submission.to_csv('./output/submission.csv', index=False)
 
+if NEURAL_NET:
+    
