@@ -11,6 +11,7 @@ import sys
 
 
 GEN_OUTPUT = False
+PERFORM_CLASS = False
 
 # Load the titanic training and testing data
 data_train = pd.read_csv('train.csv')
@@ -91,72 +92,70 @@ plt.tight_layout()
 f.savefig('Pclass_hist')
 
 
-'''
+if PERFORM_CLASS:
+    # Drop irrelevent features that should not effect survival
+    data_train = data_train.drop(['Cabin']      , axis=1)
+    data_train = data_train.drop(['PassengerId'], axis=1)
+    data_train = data_train.drop(['Ticket']     , axis=1)
+    data_train = data_train.drop(['Name']       , axis=1)
+    
+    data_test  =  data_test.drop(['Cabin']      , axis=1)
+    data_test  =  data_test.drop(['PassengerId'], axis=1)
+    data_test  =  data_test.drop(['Ticket']     , axis=1)
+    data_test  =  data_test.drop(['Name']       , axis=1)
+    
+    
+    data_train.info()
+    combined_data = [data_train,data_test]
+    
+    
+    # Further clean the data
+    most_common_port = data_train.Embarked.dropna().mode()[0]
+    average_age      = data_train.Age.dropna().mean()
+    average_fare     = data_train.Fare.dropna().mean()
+    for dataset in combined_data:
+        dataset['Age']      = dataset['Age'].fillna(average_age)
+        dataset['Fare'] = dataset['Fare'].fillna(average_fare)
+        dataset['Sex']      = dataset['Sex'].map( {'female': 1, 'male': 0} ).astype(int)
+        dataset['Embarked'] = dataset['Embarked'].fillna(most_common_port)
+        dataset['Embarked'] = dataset['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
+    
+    
+    X_train = data_train.drop("Survived", axis=1)
+    Y_train = data_train["Survived"]
+    X_test  = data_test
+    
+    # Loop through classifiers and perform k-fold cross validation
+    classifiers = [svm.SVC(kernel='linear', C=1)]
+    class_names = ['SVM']
+    
+    
+    # Create Reduced Feature Data using PCA
+    pca = PCA(n_components=2)
+    pca.fit(X_train)
+    X_train_reduced = pca.transform(X_train)
+    
+    plot_tr_data(X_train_reduced,Y_train)
+    
+    classifier_scores = []
+    print("Classifier k-fold score")
+    for i,clf in enumerate(classifiers):
+        scores = cross_val_score(clf, X_train, Y_train, cv=5)
+        print("%s %.2f" % (class_names[i],scores.mean()*100))
+        classifier_scores.append(scores.mean()*100)
+    
+        # Train with all the data?
+        clf.fit(X_train,Y_train)
+    
+        # Predict the Results with actual test data and generate CSV that
+        # Kaggle needs to actually score
+        results = clf.predict(X_test)
+    
+    submission = pd.DataFrame({
+            "PassengerId": data_test_orig["PassengerId"],
+            "Survived": results
+        })
+    
+    if GEN_OUTPUT:
+        submission.to_csv('./output/submission.csv', index=False)
 
-# Drop irrelevent features that should not effect survival
-data_train = data_train.drop(['Cabin']      , axis=1)
-data_train = data_train.drop(['PassengerId'], axis=1)
-data_train = data_train.drop(['Ticket']     , axis=1)
-data_train = data_train.drop(['Name']       , axis=1)
-
-data_test  =  data_test.drop(['Cabin']      , axis=1)
-data_test  =  data_test.drop(['PassengerId'], axis=1)
-data_test  =  data_test.drop(['Ticket']     , axis=1)
-data_test  =  data_test.drop(['Name']       , axis=1)
-
-
-data_train.info()
-combined_data = [data_train,data_test]
-
-
-# Further clean the data
-most_common_port = data_train.Embarked.dropna().mode()[0]
-average_age      = data_train.Age.dropna().mean()
-average_fare     = data_train.Fare.dropna().mean()
-for dataset in combined_data:
-    dataset['Age']      = dataset['Age'].fillna(average_age)
-    dataset['Fare'] = dataset['Fare'].fillna(average_fare)
-    dataset['Sex']      = dataset['Sex'].map( {'female': 1, 'male': 0} ).astype(int)
-    dataset['Embarked'] = dataset['Embarked'].fillna(most_common_port)
-    dataset['Embarked'] = dataset['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
-
-
-X_train = data_train.drop("Survived", axis=1)
-Y_train = data_train["Survived"]
-X_test  = data_test
-
-# Loop through classifiers and perform k-fold cross validation
-classifiers = [svm.SVC(kernel='linear', C=1)]
-class_names = ['SVM']
-
-
-# Create Reduced Feature Data using PCA
-pca = PCA(n_components=2)
-pca.fit(X_train)
-X_train_reduced = pca.transform(X_train)
-
-plot_tr_data(X_train_reduced,Y_train)
-
-classifier_scores = []
-print("Classifier k-fold score")
-for i,clf in enumerate(classifiers):
-    scores = cross_val_score(clf, X_train, Y_train, cv=5)
-    print("%s %.2f" % (class_names[i],scores.mean()*100))
-    classifier_scores.append(scores.mean()*100)
-
-    # Train with all the data?
-    clf.fit(X_train,Y_train)
-
-    # Predict the Results with actual test data and generate CSV that
-    # Kaggle needs to actually score
-    results = clf.predict(X_test)
-
-submission = pd.DataFrame({
-        "PassengerId": data_test_orig["PassengerId"],
-        "Survived": results
-    })
-
-if GEN_OUTPUT:
-    submission.to_csv('./output/submission.csv', index=False)
-
-'''
