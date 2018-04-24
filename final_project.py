@@ -7,8 +7,8 @@ from helpers import *
 from sklearn.model_selection import cross_val_score
 from sklearn import svm
 from sklearn.decomposition import PCA
-=======
->>>>>>> 6d3d227d23f9f924ac11cec8bee5adfe83917a8d
+import sys
+
 
 GEN_OUTPUT = False
 
