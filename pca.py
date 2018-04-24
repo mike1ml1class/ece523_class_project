@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import helpers as hp
 
 def analysis(X_train,Y_train):
+    print("Performing PCA Analysis!")
 
     pca = PCA(n_components=3)
     pca.fit(X_train)
