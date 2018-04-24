@@ -27,8 +27,8 @@ def check_accuracy(pred_results,test_truth):
 def plot_tr_data(X,Y):
     idx0 = np.where(Y==0)
     idx1 = np.where(Y==1)
-    plt.scatter(X[idx0, 0], X[idx0, 1],c='blue')
-    plt.scatter(X[idx1, 0], X[idx1, 1],c='red',marker='s')
+    plt.scatter(X[idx0, 0], X[idx0, 1],c='red')
+    plt.scatter(X[idx1, 0], X[idx1, 1],c='blue',marker='s')
 
 # Plotting results of classification
 def plot_class_res(X_test,pf_idxs):
