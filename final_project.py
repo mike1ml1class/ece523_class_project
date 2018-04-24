@@ -6,9 +6,12 @@ import matplotlib.pyplot as plt
 from helpers import *
 from sklearn.model_selection import cross_val_score
 from sklearn import svm
+from sklearn.decomposition import PCA
 import seaborn as sns
 
+
 GEN_OUTPUT = False
+PERFORM_CLASS = True
 
 # Load the titanic training and testing data
 data_train = pd.read_csv('train.csv')
@@ -105,134 +108,138 @@ grid = sns.FacetGrid(data_train, row='Embarked', col='Survived',size=2.5,aspect=
 g = grid.map(plt.bar, 'Sex','Fare')
 g.savefig('Fare_hist')
 
+if PERFORM_CLASS:
+
+    # Drop irrelevent features that should not effect survival
+    data_train = data_train.drop(['Cabin']      , axis=1)
+    data_train = data_train.drop(['PassengerId'], axis=1)
+    data_train = data_train.drop(['Ticket']     , axis=1)
+
+    data_test  =  data_test.drop(['Cabin']      , axis=1)
+    data_test  =  data_test.drop(['PassengerId'], axis=1)
+    data_test  =  data_test.drop(['Ticket']     , axis=1)
+
+    data_train.info()
+
+    # Concatenate the testing and training data
+    combined_data = [data_train,data_test]
+
+    # Extract statistics
+    most_common_port = data_train.Embarked.dropna().mode()[0]
+    average_age      = data_train.Age.dropna().mean()
+    average_fare     = data_train.Fare.dropna().mean()
+
+    # Loop over the data
+    for dataset in combined_data:
+
+        # Fill missing age with the average
+        dataset['Age']      = dataset['Age'].fillna(average_age)
+
+        # Fill missing fare with the average
+        dataset['Fare']     = dataset['Fare'].fillna(average_fare)
+
+        # Convert categorical to numerical
+        dataset['Sex']      = dataset['Sex'].map( {'female': 1, 'male': 0} ).astype(int)
+
+        # Fill missing Point of departure with the most common and convert to numerical
+        dataset['Embarked'] = dataset['Embarked'].fillna(most_common_port)
+        dataset['Embarked'] = dataset['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
+
+        # Extract each person's title from their name
+        dataset['Title'] = dataset.Name.str.extract(' ([A-Za-z]+)\.',expand=False)
+
+        # Reduce the number of titles
+        dataset['Title'] = dataset['Title'].replace(['Lady', 'Countess','Capt', 'Col',\
+           'Don', 'Dr', 'Major', 'Rev', 'Sir', 'Jonkheer', 'Dona'], 'Rare')
+
+        # Reduce the number of titles
+        dataset['Title'] = dataset['Title'].replace('Mlle', 'Miss')
+        dataset['Title'] = dataset['Title'].replace('Ms', 'Miss')
+        dataset['Title'] = dataset['Title'].replace('Mme', 'Mrs')
+
+        # Covnert categorical to numerical
+        title_mapping = {"Mr": 1, "Miss": 2, "Mrs": 3, "Master": 4, "Rare": 5}
+        dataset['Title'] = dataset['Title'].map(title_mapping)
+        dataset['Title'] = dataset['Title'].fillna(0)
 
 
+        u_sex = len(np.unique(dataset['Sex']))
+        u_pclass = len(np.unique(dataset['Pclass']))
+        guess_ages = np.zeros((u_sex,u_pclass))
+        for iS in range(0,u_sex):
+            for iP in range(0,u_pclass):
+
+                guess_df = dataset[(dataset['Sex'] == iS) & (dataset['Pclass'] == iP+1)]['Age'].dropna()
+
+                # age_mean = guess_df.mean()
+                # age_std = guess_df.std()
+                # age_guess = rnd.uniform(age_mean - age_std, age_mean + age_std)
+
+                age_guess = guess_df.median()
+
+                # Convert random age float to nearest .5 age
+                guess_ages[iS,iP] = int( age_guess/0.5 + 0.5 ) * 0.5
+
+        for i in range(0, u_sex):
+            for j in range(0, u_pclass):
+
+                dataset.loc[ (dataset.Age.isnull()) \
+                           & (dataset.Sex == iS) \
+                           & (dataset.Pclass == iP+1),'Age'] = guess_ages[iS,iP]
+
+        dataset['Age'] = dataset['Age'].astype(int)
+
+        # Bin continious age into "buckets"
+        agebin = pd.cut(dataset['Age'], 5)
+
+        # Create FamilySize from SibSp (num siblings/spouses) and Parch (num parents/children)
+        dataset['FamilySize'] = dataset['SibSp'] + dataset['Parch'] + 1
+
+        # Create Solo for those traveling alone
+        dataset['Solo'] = 0
+        dataset.loc[dataset['FamilySize'] == 1, 'IsAlone'] = 1
+
+        # Bin Fare into "buckets"
+        farebin = pd.qcut(dataset['Fare'], 4)
 
 
-# Drop irrelevent features that should not effect survival
-data_train = data_train.drop(['Cabin']      , axis=1)
-data_train = data_train.drop(['PassengerId'], axis=1)
-data_train = data_train.drop(['Ticket']     , axis=1)
-
-data_test  =  data_test.drop(['Cabin']      , axis=1)
-data_test  =  data_test.drop(['PassengerId'], axis=1)
-data_test  =  data_test.drop(['Ticket']     , axis=1)
-
-data_train.info()
-
-# Concatenate the testing and training data
-combined_data = [data_train,data_test]
-
-# Extract statistics
-most_common_port = data_train.Embarked.dropna().mode()[0]
-average_age      = data_train.Age.dropna().mean()
-average_fare     = data_train.Fare.dropna().mean()
-
-# Loop over the data
-for dataset in combined_data:
-
-    # Fill missing age with the average
-    dataset['Age']      = dataset['Age'].fillna(average_age)
-
-    # Fill missing fare with the average
-    dataset['Fare']     = dataset['Fare'].fillna(average_fare)
-
-    # Convert categorical to numerical
-    dataset['Sex']      = dataset['Sex'].map( {'female': 1, 'male': 0} ).astype(int)
-
-    # Fill missing Point of departure with the most common and convert to numerical
-    dataset['Embarked'] = dataset['Embarked'].fillna(most_common_port)
-    dataset['Embarked'] = dataset['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
-
-    # Extract each person's title from their name
-    dataset['Title'] = dataset.Name.str.extract(' ([A-Za-z]+)\.',expand=False)
-
-    # Reduce the number of titles
-    dataset['Title'] = dataset['Title'].replace(['Lady', 'Countess','Capt', 'Col',\
-       'Don', 'Dr', 'Major', 'Rev', 'Sir', 'Jonkheer', 'Dona'], 'Rare')
-
-    # Reduce the number of titles
-    dataset['Title'] = dataset['Title'].replace('Mlle', 'Miss')
-    dataset['Title'] = dataset['Title'].replace('Ms', 'Miss')
-    dataset['Title'] = dataset['Title'].replace('Mme', 'Mrs')
-
-    # Covnert categorical to numerical
-    title_mapping = {"Mr": 1, "Miss": 2, "Mrs": 3, "Master": 4, "Rare": 5}
-    dataset['Title'] = dataset['Title'].map(title_mapping)
-    dataset['Title'] = dataset['Title'].fillna(0)
+    X_train = data_train.drop("Survived", axis=1)
+    Y_train = data_train["Survived"]
+    X_test  = data_test
 
 
-    u_sex = len(np.unique(dataset['Sex']))
-    u_pclass = len(np.unique(dataset['Pclass']))
-    guess_ages = np.zeros((u_sex,u_pclass))
-    for iS in range(0,u_sex):
-        for iP in range(0,u_pclass):
-
-            guess_df = dataset[(dataset['Sex'] == iS) & (dataset['Pclass'] == iP+1)]['Age'].dropna()
-
-            # age_mean = guess_df.mean()
-            # age_std = guess_df.std()
-            # age_guess = rnd.uniform(age_mean - age_std, age_mean + age_std)
-
-            age_guess = guess_df.median()
-
-            # Convert random age float to nearest .5 age
-            guess_ages[iS,iP] = int( age_guess/0.5 + 0.5 ) * 0.5
-
-    for i in range(0, u_sex):
-        for j in range(0, u_pclass):
-
-            dataset.loc[ (dataset.Age.isnull()) \
-                       & (dataset.Sex == iS) \
-                       & (dataset.Pclass == iP+1),'Age'] = guess_ages[iS,iP]
-
-    dataset['Age'] = dataset['Age'].astype(int)
-
-    # Bin continious age into "buckets"
-    agebin = pd.cut(dataset['Age'], 5)
-
-    # Create FamilySize from SibSp (num siblings/spouses) and Parch (num parents/children)
-    dataset['FamilySize'] = dataset['SibSp'] + dataset['Parch'] + 1
-
-    # Create Solo for those traveling alone
-    dataset['Solo'] = 0
-    dataset.loc[dataset['FamilySize'] == 1, 'IsAlone'] = 1
-
-    # Bin Fare into "buckets"
-    farebin = pd.qcut(dataset['Fare'], 4)
+    # Loop through classifiers and perform k-fold cross validation
+    classifiers = [svm.SVC(kernel='linear', C=1)]
+    class_names = ['SVM']
 
 
-X_train = data_train.drop("Survived", axis=1)
-Y_train = data_train["Survived"]
-X_test  = data_test
+    # Create Reduced Feature Data using PCA
+    pca = PCA(n_components=2)
+    pca.fit(X_train)
+    X_train_reduced = pca.transform(X_train)
+
+    #plot_tr_data(X_train_reduced,Y_train)
+
+    classifier_scores = []
+    print("Classifier k-fold score")
+    for i,clf in enumerate(classifiers):
+        scores = cross_val_score(clf, X_train, Y_train, cv=5)
+        print("%s %.2f" % (class_names[i],scores.mean()*100))
+        classifier_scores.append(scores.mean()*100)
+
+        # Train with all the data?
+        clf.fit(X_train,Y_train)
+
+        # Predict the Results with actual test data and generate CSV that
+        # Kaggle needs to actually score
+        results = clf.predict(X_test)
+
+    submission = pd.DataFrame({
+            "PassengerId": data_test_orig["PassengerId"],
+            "Survived": results
+        })
+
+    if GEN_OUTPUT:
+        submission.to_csv('./output/submission.csv', index=False)
 
 
-'''
-
-# Loop through classifiers and perform k-fold cross validation
-classifiers = [svm.SVC(kernel='linear', C=1)]
-class_names = ['SVM']
-
-classifier_scores = []
-print("Classifier k-fold score")
-for i,clf in enumerate(classifiers):
-    scores = cross_val_score(clf, X_train, Y_train, cv=5)
-    print("%s %.2f" % (class_names[i],scores.mean()*100))
-    classifier_scores.append(scores.mean()*100)
-
-    # Train with all the data?
-    clf.fit(X_train,Y_train)
-
-    # Predict the Results with actual test data and generate CSV that
-    # Kaggle needs to actually score
-    results = clf.predict(X_test)
-
-submission = pd.DataFrame({
-        "PassengerId": data_test_orig["PassengerId"],
-        "Survived": results
-    })
-
-if GEN_OUTPUT:
-    submission.to_csv('./output/submission.csv', index=False)
-
-'''
