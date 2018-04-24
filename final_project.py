@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from helpers import *
 from sklearn.model_selection import cross_val_score
 from sklearn import svm
+from sklearn.decomposition import PCA
 
 GEN_OUTPUT = False
 
@@ -65,6 +66,14 @@ X_test  = data_test
 # Loop through classifiers and perform k-fold cross validation
 classifiers = [svm.SVC(kernel='linear', C=1)]
 class_names = ['SVM']
+
+
+# Create Reduced Feature Data using PCA
+pca = PCA(n_components=2)
+pca.fit(X_train)
+X_train_reduced = pca.transform(X_train)
+
+plot_tr_data(X_train_reduced,Y_train)
 
 classifier_scores = []
 print("Classifier k-fold score")
