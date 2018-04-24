@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from helpers import *
 from sklearn.model_selection import cross_val_score
 from sklearn import svm
-import sys
+import seaborn as sns
 
 GEN_OUTPUT = False
 
@@ -88,40 +88,126 @@ ax[2,1].set_title('Pclass = 3,Survived = 1')
 plt.tight_layout()
 f.savefig('Pclass_hist')
 
+#f,ax = plt.subplots(3,2,figsize=(8,8))
+##data_train.hist(ax=ax,column='Age',by=['Pclass','Survived'],sharey=True,sharex=True,xrot=45,bins=20,ec='k')
+#data_train.bar(ax=ax,column='Fare',by=['Embarked','Survived'],xrot=45,bins=20,ec='k')
+#ax[2,0].set_xlabel('Age')
+#ax[0,0].set_title('Pclass = 1,Survived = 0')
+#ax[0,1].set_title('Pclass = 1,Survived = 1')
+#ax[1,0].set_title('Pclass = 2,Survived = 0')
+#ax[1,1].set_title('Pclass = 2,Survived = 1')
+#ax[2,0].set_title('Pclass = 3,Survived = 0')
+#ax[2,1].set_title('Pclass = 3,Survived = 1')
+#plt.tight_layout()
+#f.savefig('Fare_hist')
 
-'''
+grid = sns.FacetGrid(data_train, row='Embarked', col='Survived',size=2.5,aspect=1.5)
+g = grid.map(plt.bar, 'Sex','Fare')
+g.savefig('Fare_hist')
+
+
+
+
 
 # Drop irrelevent features that should not effect survival
 data_train = data_train.drop(['Cabin']      , axis=1)
 data_train = data_train.drop(['PassengerId'], axis=1)
 data_train = data_train.drop(['Ticket']     , axis=1)
-data_train = data_train.drop(['Name']       , axis=1)
 
 data_test  =  data_test.drop(['Cabin']      , axis=1)
 data_test  =  data_test.drop(['PassengerId'], axis=1)
 data_test  =  data_test.drop(['Ticket']     , axis=1)
-data_test  =  data_test.drop(['Name']       , axis=1)
-
 
 data_train.info()
+
+# Concatenate the testing and training data
 combined_data = [data_train,data_test]
 
-
-# Further clean the data
+# Extract statistics
 most_common_port = data_train.Embarked.dropna().mode()[0]
 average_age      = data_train.Age.dropna().mean()
 average_fare     = data_train.Fare.dropna().mean()
+
+# Loop over the data
 for dataset in combined_data:
+
+    # Fill missing age with the average
     dataset['Age']      = dataset['Age'].fillna(average_age)
-    dataset['Fare'] = dataset['Fare'].fillna(average_fare)
+
+    # Fill missing fare with the average
+    dataset['Fare']     = dataset['Fare'].fillna(average_fare)
+
+    # Convert categorical to numerical
     dataset['Sex']      = dataset['Sex'].map( {'female': 1, 'male': 0} ).astype(int)
+
+    # Fill missing Point of departure with the most common and convert to numerical
     dataset['Embarked'] = dataset['Embarked'].fillna(most_common_port)
     dataset['Embarked'] = dataset['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
+
+    # Extract each person's title from their name
+    dataset['Title'] = dataset.Name.str.extract(' ([A-Za-z]+)\.',expand=False)
+
+    # Reduce the number of titles
+    dataset['Title'] = dataset['Title'].replace(['Lady', 'Countess','Capt', 'Col',\
+       'Don', 'Dr', 'Major', 'Rev', 'Sir', 'Jonkheer', 'Dona'], 'Rare')
+
+    # Reduce the number of titles
+    dataset['Title'] = dataset['Title'].replace('Mlle', 'Miss')
+    dataset['Title'] = dataset['Title'].replace('Ms', 'Miss')
+    dataset['Title'] = dataset['Title'].replace('Mme', 'Mrs')
+
+    # Covnert categorical to numerical
+    title_mapping = {"Mr": 1, "Miss": 2, "Mrs": 3, "Master": 4, "Rare": 5}
+    dataset['Title'] = dataset['Title'].map(title_mapping)
+    dataset['Title'] = dataset['Title'].fillna(0)
+
+
+    u_sex = len(np.unique(dataset['Sex']))
+    u_pclass = len(np.unique(dataset['Pclass']))
+    guess_ages = np.zeros((u_sex,u_pclass))
+    for iS in range(0,u_sex):
+        for iP in range(0,u_pclass):
+
+            guess_df = dataset[(dataset['Sex'] == iS) & (dataset['Pclass'] == iP+1)]['Age'].dropna()
+
+            # age_mean = guess_df.mean()
+            # age_std = guess_df.std()
+            # age_guess = rnd.uniform(age_mean - age_std, age_mean + age_std)
+
+            age_guess = guess_df.median()
+
+            # Convert random age float to nearest .5 age
+            guess_ages[iS,iP] = int( age_guess/0.5 + 0.5 ) * 0.5
+
+    for i in range(0, u_sex):
+        for j in range(0, u_pclass):
+
+            dataset.loc[ (dataset.Age.isnull()) \
+                       & (dataset.Sex == iS) \
+                       & (dataset.Pclass == iP+1),'Age'] = guess_ages[iS,iP]
+
+    dataset['Age'] = dataset['Age'].astype(int)
+
+    # Bin continious age into "buckets"
+    agebin = pd.cut(dataset['Age'], 5)
+
+    # Create FamilySize from SibSp (num siblings/spouses) and Parch (num parents/children)
+    dataset['FamilySize'] = dataset['SibSp'] + dataset['Parch'] + 1
+
+    # Create Solo for those traveling alone
+    dataset['Solo'] = 0
+    dataset.loc[dataset['FamilySize'] == 1, 'IsAlone'] = 1
+
+    # Bin Fare into "buckets"
+    farebin = pd.qcut(dataset['Fare'], 4)
 
 
 X_train = data_train.drop("Survived", axis=1)
 Y_train = data_train["Survived"]
 X_test  = data_test
+
+
+'''
 
 # Loop through classifiers and perform k-fold cross validation
 classifiers = [svm.SVC(kernel='linear', C=1)]
