@@ -8,10 +8,13 @@ from sklearn.model_selection import cross_val_score
 from sklearn import svm
 from sklearn.decomposition import PCA
 import seaborn as sns
+import sys
+import tensorflow as tf
 
-
-GEN_OUTPUT = False
+# Setup and Config
+GEN_OUTPUT    = False
 PERFORM_CLASS = True
+NEURAL_NET    = True
 
 # Load the titanic training and testing data
 data_train = pd.read_csv('train.csv')
@@ -111,6 +114,8 @@ g.savefig('Fare_hist')
 if PERFORM_CLASS:
 
     # Drop irrelevent features that should not effect survival
+    # Need to do an analysis and see if Fare feature is contributing
+    # to results
     data_train = data_train.drop(['Cabin']      , axis=1)
     data_train = data_train.drop(['PassengerId'], axis=1)
     data_train = data_train.drop(['Ticket']     , axis=1)
@@ -214,11 +219,42 @@ if PERFORM_CLASS:
 
 
     # Create Reduced Feature Data using PCA
-    pca = PCA(n_components=2)
+    # -Using three components to reduce features.  Will plot
+    #  each axis against the others to see if there is any
+    #  good separation.
+    #
+    # -Looking at plot there does not appear
+    #  to be. Indicates data is not linearly seperable and more
+    #  sophisticated techniques will be needed to get a decent
+    #  score
+    pca = PCA(n_components=3)
     pca.fit(X_train)
     X_train_reduced = pca.transform(X_train)
 
     #plot_tr_data(X_train_reduced,Y_train)
+
+    new_feat0 = X_train_reduced[:,0:1]
+    new_feat1 = X_train_reduced[:,1:2]
+    new_feat2 = X_train_reduced[:,2:3]
+
+    plt.figure()
+    plt.subplot(2,2,1)
+    plot_tr_data(np.hstack((new_feat0,new_feat1)),Y_train)
+    plt.xlabel('Feature 0')
+    plt.ylabel('Feature 1')
+
+    plt.subplot(2,2,2)
+    plot_tr_data(np.hstack((new_feat0,new_feat2)),Y_train)
+    plt.xlabel('Feature 0')
+    plt.ylabel('Feature 2')
+
+    plt.subplot(2,2,3)
+    plot_tr_data(np.hstack((new_feat1,new_feat2)),Y_train)
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    #plt.legend(('Survived0','Survived1'),loc='upper right')
+    plt.tight_layout()
+
 
     classifier_scores = []
     print("Classifier k-fold score")
@@ -242,4 +278,5 @@ if PERFORM_CLASS:
     if GEN_OUTPUT:
         submission.to_csv('./output/submission.csv', index=False)
 
-
+if NEURAL_NET:
+    
