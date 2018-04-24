@@ -241,16 +241,16 @@ if PERFORM_CLASS:
 
         # Train with all the data?
         clf.fit(X_train,Y_train)
-    
+
         # Predict the Results with actual test data and generate CSV that
         # Kaggle needs to actually score
         results = clf.predict(X_test)
-    
+
     submission = pd.DataFrame({
             "PassengerId": data_test_orig["PassengerId"],
             "Survived": results
         })
-    
+
     if GEN_OUTPUT:
         submission.to_csv('./output/submission.csv', index=False)
 
