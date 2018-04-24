@@ -5,3 +5,6 @@ __pycache__/helpers.cpython-35.pyc
 *.bak
 *.orig
 *.pyc
+.ipynb_checkpoints/project-checkpoint.ipynb
+__pycache__/helpers.cpython-35.pyc
+__pycache__/helpers.cpython-35.pyc
