@@ -194,31 +194,32 @@ def visualize_data(x_tr,x_te):
     print( x_tr.describe() )
 
 
+    
     # Do a bit of analysis by isolating features
     print('\n')
-    out = x_te[['Pclass', 'Survived']].groupby(['Pclass'], as_index=False).mean().sort_values(by='Survived', ascending=False)
+    out = x_tr[['Pclass', 'Survived']].groupby(['Pclass'], as_index=False).mean().sort_values(by='Survived', ascending=False)
     print(out)
 
     print('\n')
-    out = x_te[['Sex', 'Survived']].groupby(['Sex'], as_index=False).mean().sort_values(by='Survived', ascending=False)
+    out = x_tr[['Sex', 'Survived']].groupby(['Sex'], as_index=False).mean().sort_values(by='Survived', ascending=False)
     print(out)
 
     print('\n')
-    out = x_te[['Cabin', 'Survived']].groupby(['Cabin'], as_index=False).mean().sort_values(by='Survived', ascending=False)
+    out = x_tr[['Cabin', 'Survived']].groupby(['Cabin'], as_index=False).mean().sort_values(by='Survived', ascending=False)
     print(out)
 
     print('\n')
-    out = x_te[['SibSp', 'Survived']].groupby(['SibSp'], as_index=False).mean().sort_values(by='Survived', ascending=False)
+    out = x_tr[['SibSp', 'Survived']].groupby(['SibSp'], as_index=False).mean().sort_values(by='Survived', ascending=False)
     print(out)
 
     print('\n')
-    out = x_te[['Parch', 'Survived']].groupby(['Parch'], as_index=False).mean().sort_values(by='Survived', ascending=False)
+    out = x_tr[['Parch', 'Survived']].groupby(['Parch'], as_index=False).mean().sort_values(by='Survived', ascending=False)
     print(out)
 
 
     f,ax = plt.subplots(1,2,figsize=(8,4))
     #ax = x_te.hist(column='Age',by='Survived',sharey=True,xrot=45,bins=20,ec='k')
-    x_te.hist(ax=ax,column='Age',by='Survived',rot=0,bins=20,ec='k')
+    x_tr.hist(ax=ax,column='Age',by='Survived',rot=0,bins=20,ec='k')
     ax[0].set_xlabel('Age')
     ax[1].set_xlabel('Age')
     ax[0].grid(True)
@@ -230,7 +231,7 @@ def visualize_data(x_tr,x_te):
 
     f,ax = plt.subplots(3,2,figsize=(8,8))
     #x_te.hist(ax=ax,column='Age',by=['Pclass','Survived'],sharey=True,sharex=True,xrot=45,bins=20,ec='k')
-    x_te.hist(ax=ax,column='Age',by=['Pclass','Survived'],xrot=45,bins=20,ec='k')
+    x_tr.hist(ax=ax,column='Age',by=['Pclass','Survived'],xrot=45,bins=20,ec='k')
     ax[2,0].set_xlabel('Age')
     ax[0,0].set_title('Pclass = 1,Survived = 0')
     ax[0,1].set_title('Pclass = 1,Survived = 1')
@@ -243,7 +244,7 @@ def visualize_data(x_tr,x_te):
 
     f,ax = plt.subplots(3,2,figsize=(8,8))
     #x_te.hist(ax=ax,column='Age',by=['Pclass','Survived'],sharey=True,sharex=True,xrot=45,bins=20,ec='k')
-    x_te.bar(ax=ax,column='Fare',by=['Embarked','Survived'],xrot=45,bins=20,ec='k')
+    x_tr.bar(ax=ax,column='Fare',by=['Embarked','Survived'],xrot=45,bins=20,ec='k')
     ax[2,0].set_xlabel('Age')
     ax[0,0].set_title('Pclass = 1,Survived = 0')
     ax[0,1].set_title('Pclass = 1,Survived = 1')

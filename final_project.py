@@ -17,10 +17,10 @@ import dnn
 import titanic
 
 # Setup and Config
-GEN_OUTPUT    = False
+GEN_OUTPUT    = True
 PERFORM_CLASS = True
 NEURAL_NET    = True
-VISUALIZE     = False
+VISUALIZE     = True
 
 # Load the titanic training and testing data
 data_train = pd.read_csv('train.csv')
