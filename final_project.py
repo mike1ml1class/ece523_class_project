@@ -78,7 +78,8 @@ if PERFORM_CLASS:
         y_pred = clf.predict(x_te)
 
     if GEN_OUTPUT:
-        titanic.create_submission(data_test,y_pred,'./output/submission.csv')
+        file_str = './output/' + class_names[i] + '_' + 'submission.csv'
+        titanic.create_submission(data_test,y_pred,file_str)
 
 if NEURAL_NET:
 
