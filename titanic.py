@@ -198,7 +198,7 @@ def visualize_data(x_tr,x_te):
     print( x_tr.describe() )
 
 
-    
+
     # Do a bit of analysis by isolating features
     print('\n')
     out = x_tr[['Pclass', 'Survived']].groupby(['Pclass'], as_index=False).mean().sort_values(by='Survived', ascending=False)
@@ -247,7 +247,7 @@ def visualize_data(x_tr,x_te):
     f.savefig('Pclass_hist')
 
     f,ax = plt.subplots(3,2,figsize=(8,8))
-    
+
     # clean the data for the sake of the plot
     #copy data to temp_tr so actual data set does not change and mess with the rest of the script
     port_mode = x_tr.Embarked.dropna().mode()[0]
@@ -255,10 +255,10 @@ def visualize_data(x_tr,x_te):
     temp_tr['Embarked'] = temp_tr['Embarked'].fillna(port_mode)
     temp_tr['Embarked'] = temp_tr['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
     temp_tr['Sex'] = temp_tr['Sex'].map( {'female': 1, 'male': 0} ).astype(int)
-    
+
     #x_te.hist(ax=ax,column='Age',by=['Pclass','Survived'],sharey=True,sharex=True,xrot=45,bins=20,ec='k')
     temp_tr.hist(ax=ax,column='Fare',by=['Embarked','Survived'],xrot=45,bins=20,ec='k')
-    
+
     ax[2,0].set_xlabel('Age')
     ax[0,0].set_title('Pclass = 1,Survived = 0')
     ax[0,1].set_title('Pclass = 1,Survived = 1')
@@ -275,9 +275,9 @@ def visualize_data(x_tr,x_te):
 
 
 
-def create_submission(data_test,y_pred,filename):
-    submission = pd.DataFrame({
-            "PassengerId": data_test["PassengerId"],
-            "Survived": y_pred
-        })
+def create_submission(passenger_id,survived,filename):
+
+    submission = pd.DataFrame({"PassengerId": passenger_id,
+                               "Survived"   : survived      })
+
     submission.to_csv(filename, index=False)

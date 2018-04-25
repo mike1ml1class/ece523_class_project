@@ -5,36 +5,30 @@
 # cd C:\Users\Michael\Desktop\ECE523\project\ece523_class_project
 
 # Import necessary libraries
-import numpy as np
 import pandas as pd
-from sklearn.model_selection import cross_val_score
 
 # Import our modules
-import helpers as hp
 import titanic
 import knn as knn
 import logistic_regression as lr
 import random_forest as rf
-import svm as svm
+import svm_lin as svm_lin
+import svm_rbf as svm_rbf
 import decision_tree as dt
 import pca as pca
 import dnn as dnn
 
 
-
 # Setup and Config
-GEN_OUTPUT    = True
+VISUALIZE     = False
+PERFORM_PCA   = False
 PERFORM_CLASS = True
-NEURAL_NET    = True
-VISUALIZE     = True
+GEN_OUTPUT    = True
+
 
 # Load the titanic training and testing data
 data_train = pd.read_csv('train.csv')
 data_test  = pd.read_csv('test.csv')
-
-# Visualize data and correlations to survival
-if VISUALIZE:
-    titanic.visualize_data(data_train,data_test)
 
 # Convert categorical data to numerical and fill in missing values
 data = titanic.fix_fill_convert(data_train,data_test)
@@ -43,23 +37,19 @@ data = titanic.fix_fill_convert(data_train,data_test)
 df_tr = data[0]                  # Training data
 df_te = data[1]                  # Testing data
 
+# Create features and labels
+x_tr = df_tr.drop("Survived", axis=1)
+y_tr = df_tr["Survived"]
+x_te = df_te
 
-if PERFORM_CLASS:
-    x_tr = df_tr.drop("Survived", axis=1)
-    y_tr = df_tr["Survived"]
-    x_te = df_te
 
-    # Loop through classifiers and perform k-fold cross validation
-    #classifiers = [svm.SVC(kernel='linear', C=1)]
-    
-    
-    classifiers = [svm.analysis,
-                   lr.analysis,
-                   rf.analysis,
-                   knn.analysis,
-                   dt.analysis]
-                   
-    class_names = ['SVM','LogisticRegression','RandomForest','KNN','DecsionTree']
+if VISUALIZE:
+
+    # Visualize data and correlations to survival
+    titanic.visualize_data(data_train,data_test)
+
+
+if PERFORM_PCA:
 
     # Create Reduced Feature Data using PCA
     # -Using three components to reduce features.  Will plot
@@ -71,28 +61,43 @@ if PERFORM_CLASS:
     #  sophisticated techniques will be needed to get a decent
     #  score
 
-    #pca.analysis(x_tr,y_tr)
+    pca.analysis(x_tr,y_tr)
 
-    classifier_scores = []
-    print("Classifier k-fold score")
-    for i,my_clf in enumerate(classifiers):
-        #scores = cross_val_score(clf, x_tr, y_tr, cv=5)
-        #print("%s %.2f" % (class_names[i],scores.mean()*100))
-        #classifier_scores.append(scores.mean()*100)
-        
-        my_clf(x_tr,y_tr)
 
-        # Train with all the data?
-        #clf.fit(x_tr,y_tr)
+if PERFORM_CLASS:
 
-        # Predict the Results with actual test data and generate CSV that
-        # Kaggle needs to actually score
-        #y_pred = clf.predict(x_te)
+    # Classifier dictionary
+    clf_dict = {'LinSVM'             : svm_lin ,
+                'RbfSVM'             : svm_rbf ,
+                'LogisticRegression' : lr      ,
+                'RandomForest'       : rf      ,
+                'KNN'                : knn     ,
+                'DecisionTree'       : dt      ,
+                'DNN'                : dnn       }
 
-    if GEN_OUTPUT:
-        print('Generating Output...')
-        #file_str = './output/' + class_names[i] + '_' + 'submission.csv'
-        #titanic.create_submission(data_test,y_pred,file_str)
+    # Empty results dictionary
+    clf_results = {};
 
-if NEURAL_NET:
-    dnn.analysis()
+    # Loop over the classifiers
+    for key,clf in clf_dict.items():
+
+        # Perform classification
+        yhat = clf.analysis(x_tr,y_tr,x_te)
+
+        # Store results in dictionary
+        clf_results[key] = yhat
+
+
+if GEN_OUTPUT:
+
+    print("\n")
+
+    for key,yhat in clf_results.items():
+
+        print('Generating %s Output...' % (key))
+
+        # Create filename
+        fn = key + '_submission.csv'
+
+        # Generate the submission file
+        titanic.create_submission(data_test['PassengerId'],yhat,fn)
