@@ -5,7 +5,7 @@
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+import pandas as pd
 '''
  Clean, fill, fix and create new features from the data:
 
@@ -273,3 +273,11 @@ def visualize_data(x_tr,x_te):
     g = grid.map(plt.bar, 'Sex','Fare')
     g.savefig('Fare_hist')
 
+
+
+def create_submission(data_test,y_pred,filename):
+    submission = pd.DataFrame({
+            "PassengerId": data_test["PassengerId"],
+            "Survived": y_pred
+        })
+    submission.to_csv(filename, index=False)

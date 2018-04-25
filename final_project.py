@@ -75,15 +75,10 @@ if PERFORM_CLASS:
 
         # Predict the Results with actual test data and generate CSV that
         # Kaggle needs to actually score
-        results = clf.predict(x_te)
-
-    submission = pd.DataFrame({
-            "PassengerId": data_test["PassengerId"],
-            "Survived": results
-        })
+        y_pred = clf.predict(x_te)
 
     if GEN_OUTPUT:
-        submission.to_csv('./output/submission.csv', index=False)
+        titanic.create_submission(data_test,y_pred,'./output/submission.csv')
 
 if NEURAL_NET:
 
