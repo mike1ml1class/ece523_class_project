@@ -26,6 +26,7 @@ def fix_fill_convert(x_tr, x_te):
     # Put data in a list
     data = [x_tr,x_te]
 
+    average_fare     = x_tr.Fare.dropna().mean()
     # Loop over each data frame
     for idx,df in enumerate(data):
 
@@ -36,6 +37,9 @@ def fix_fill_convert(x_tr, x_te):
 
         # Convert categorical to numerical
         df['Sex'] = df['Sex'].map( {'female': 1, 'male': 0} ).astype(int)
+
+        # fill mising value of fare with average fare
+        df['Fare'] = df['Fare'].fillna(average_fare)
 
         # Extract each person's title from their name
         df['Title'] = df.Name.str.extract(' ([A-Za-z]+)\.',expand=False)
@@ -243,8 +247,18 @@ def visualize_data(x_tr,x_te):
     f.savefig('Pclass_hist')
 
     f,ax = plt.subplots(3,2,figsize=(8,8))
+    
+    # clean the data for the sake of the plot
+    #copy data to temp_tr so actual data set does not change and mess with the rest of the script
+    port_mode = x_tr.Embarked.dropna().mode()[0]
+    temp_tr = x_tr.copy()
+    temp_tr['Embarked'] = temp_tr['Embarked'].fillna(port_mode)
+    temp_tr['Embarked'] = temp_tr['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
+    temp_tr['Sex'] = temp_tr['Sex'].map( {'female': 1, 'male': 0} ).astype(int)
+    
     #x_te.hist(ax=ax,column='Age',by=['Pclass','Survived'],sharey=True,sharex=True,xrot=45,bins=20,ec='k')
-    x_tr.bar(ax=ax,column='Fare',by=['Embarked','Survived'],xrot=45,bins=20,ec='k')
+    temp_tr.hist(ax=ax,column='Fare',by=['Embarked','Survived'],xrot=45,bins=20,ec='k')
+    
     ax[2,0].set_xlabel('Age')
     ax[0,0].set_title('Pclass = 1,Survived = 0')
     ax[0,1].set_title('Pclass = 1,Survived = 1')
@@ -255,7 +269,7 @@ def visualize_data(x_tr,x_te):
     plt.tight_layout()
     f.savefig('Fare_hist')
 
-    grid = sns.FacetGrid(x_te, row='Embarked', col='Survived',size=2.5,aspect=1.5)
+    grid = sns.FacetGrid(temp_tr, row='Embarked', col='Survived',size=2.5,aspect=1.5)
     g = grid.map(plt.bar, 'Sex','Fare')
     g.savefig('Fare_hist')
 
