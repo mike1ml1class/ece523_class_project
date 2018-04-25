@@ -10,7 +10,7 @@ from sklearn.model_selection import cross_val_score
 import helpers as hp
 
 def analysis(x_tr,y_tr,x_te=None):
-    print("Performing Descision Tree Classification!")
+    print("Performing Decision Tree Classification!")
 
     # Create the classifier
     decision_tree = DecisionTreeClassifier()
