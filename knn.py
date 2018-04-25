@@ -4,6 +4,7 @@
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.model_selection import cross_val_score
 
 # Import our modules
 import helpers as hp
@@ -21,10 +22,14 @@ def analysis(x_tr,y_tr,x_te=None):
     #yhat = knn.predict(x_te)
 
     # Compute the training accuracy
-    acc_knn = knn.score(x_tr, y_tr)
+    acc = knn.score(x_tr, y_tr)
+
+    # Compute the CV scores
+    scores = cross_val_score(knn, x_tr, y_tr, cv=5)
 
 
     print("\n")
-    print("KNN Accuracy = %3.4f" % (acc_knn))
+    print("KNN Accuracy = %3.4f" % (acc))
+    print("CV Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
 
