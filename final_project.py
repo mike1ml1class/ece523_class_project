@@ -20,6 +20,7 @@ import dnn as dnn
 import adaboost as ada
 import bagging as bag
 import semissl as semissl
+import mlp_sk  as mlp_sk
 
 
 # Setup and Config
@@ -78,6 +79,7 @@ if PERFORM_CLASS:
                 'DecisionTree'       : dt      ,
                 'AdaBoost'           : ada     ,
                 'Bagging'            : bag     ,
+                'MLP_sk'             : mlp_sk  ,
                 'SemiSupervised'     : semissl ,
                 'DNN'                : dnn       }
 
