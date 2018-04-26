@@ -11,3 +11,4 @@ __pycache__/helpers.cpython-35.pyc
 output/submission.csv
 *.csv
 output/submission.csv
+*.gz

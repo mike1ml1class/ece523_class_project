@@ -111,25 +111,26 @@ if GEN_OUTPUT:
         titanic.create_submission(data_test['PassengerId'],yhat,fn)
 
 
-#import tensorflow as tf
-#HIDDEN = [100,100,100,100,100]
+import tensorflow as tf
+HIDDEN = [100,100,100,100,100]
 
-#feature_columns = [tf.feature_column.numeric_column("x", shape=[1, 8])]
-#classifier = tf.estimator.DNNClassifier(
-#    feature_columns=feature_columns,
-#    hidden_units=HIDDEN,
-#    optimizer=tf.train.AdamOptimizer(1e-4),
-#    n_classes=2,
-#    dropout=0.1,
-#)
-#
-#train_input_fn = tf.estimator.inputs.numpy_input_fn(
-#    x={"x": input(x_tr.values)},
-#    y=input(y_tr.values),
-#    num_epochs=None,
-#    batch_size=50,
-#    shuffle=True
-#)
-#classifier.train(input_fn=train_input_fn, steps=100000)
+feature_columns = [tf.feature_column.numeric_column("x", shape=[1, x_tr.values.shape[1]])]
+classifier = tf.estimator.DNNClassifier(
+    feature_columns=feature_columns,
+    hidden_units=HIDDEN,
+    optimizer=tf.train.AdamOptimizer(1e-4),
+    n_classes=2,
+    dropout=0.1,
+)
+
+train_input_fn = tf.estimator.inputs.numpy_input_fn(
+    x={"x": x_tr.values},
+    y=y_tr.values,
+    num_epochs=None,
+    batch_size=50,
+    shuffle=True
+)
+classifier.train(input_fn=train_input_fn, steps=1000)
+accuracy_score_train = classifier.evaluate(input_fn=train_input_fn)["accuracy"]
 
 
