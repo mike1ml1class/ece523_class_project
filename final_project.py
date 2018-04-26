@@ -17,6 +17,8 @@ import svm_rbf as svm_rbf
 import decision_tree as dt
 import pca as pca
 import dnn as dnn
+import adaboost as ada
+import bagging as bag
 
 
 # Setup and Config
@@ -73,7 +75,9 @@ if PERFORM_CLASS:
                 'RandomForest'       : rf      ,
                 'KNN'                : knn     ,
                 'DecisionTree'       : dt      ,
-                'DNN'                : dnn       }
+                'DNN'                : dnn     ,
+                'AdaBoost'           : ada     ,
+                'Bagging'            : bag       }
 
     # Empty results dictionary
     clf_results = {};

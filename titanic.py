@@ -140,6 +140,9 @@ def fix_fill_convert(x_tr, x_te):
         # Remove FamilySize too
         #df = df.drop(['FamilySize'])
 
+        # Create a new feature by combining
+        #df['Age*Class'] = df.Age * df.Pclass
+
         # Fill missing port of departure with the most common and convert to numerical
         port_mode = df.Embarked.dropna().mode()[0]
         df['Embarked'] = df['Embarked'].fillna(port_mode)
