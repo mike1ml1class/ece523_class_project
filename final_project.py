@@ -131,6 +131,17 @@ train_input_fn = tf.estimator.inputs.numpy_input_fn(
     shuffle=True
 )
 classifier.train(input_fn=train_input_fn, steps=1000)
+
+train_input_fn = tf.estimator.inputs.numpy_input_fn(
+    x={"x": x_tr.values},
+    y=y_tr.values,
+    num_epochs=1,
+    shuffle=False
+)
+
+
+
+
 accuracy_score_train = classifier.evaluate(input_fn=train_input_fn)["accuracy"]
 
 
