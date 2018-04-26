@@ -19,6 +19,7 @@ import pca as pca
 import dnn as dnn
 import adaboost as ada
 import bagging as bag
+import mlp_sk  as mlp_sk
 
 
 # Setup and Config
@@ -77,7 +78,8 @@ if PERFORM_CLASS:
                 'DecisionTree'       : dt      ,
                 'DNN'                : dnn     ,
                 'AdaBoost'           : ada     ,
-                'Bagging'            : bag       }
+                'Bagging'            : bag     ,
+                'MLP_sk'             : mlp_sk  , }
 
     # Empty results dictionary
     clf_results = {};
