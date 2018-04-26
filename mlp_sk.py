@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import StandardScaler
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import cross_val_score
@@ -13,9 +14,19 @@ def analysis(x_tr,y_tr,x_te=None):
     #print("Performing MLP Classification!")
 
     # Create the classifier
-    clf = MLPClassifier(solver='sgd',alpha=1e2,hidden_layer_sizes=(100,100),
-                        random_state=1,max_iter = 400,momentum=0.9,
-                        learning_rate_init=0.2)
+    clf = MLPClassifier(solver='adam',alpha=1e5,hidden_layer_sizes=(100,100),
+                        random_state=1,max_iter = 500,momentum=0.9,
+                        learning_rate_init=0.002)
+
+    # Create a scaler to scale the features (mean=0, var=1)
+    scaler = StandardScaler()
+
+    # Fit
+    scaler.fit(x_tr)
+
+    # Scale
+    x_tr = scaler.transform(x_tr)
+    x_te = scaler.transform(x_te)
 
     # Train the model
     clf.fit(x_tr, y_tr)
