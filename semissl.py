@@ -23,13 +23,15 @@ def analysis(x_tr,y_tr,x_te=None):
     # Compute the CV scores
     #scores = cross_val_score(svm, x_tr, y_tr, cv=5)
 
-    print("\n")
-    print("SSL Accuracy = %3.4f" % (acc))
-    print("CV Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+    #print("\n")
+    #print("SSL Accuracy = %3.4f" % (acc))
+    #print("CV Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
     # Classify the data
     if x_te is not None:
-        yhat = svm.predict(x_te)
+        #yhat = svm.predict(x_te)
+        yhat = None
+        print('Remember to Implement!')
     else:
         yhat = None
 
