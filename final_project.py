@@ -112,6 +112,7 @@ if GEN_OUTPUT:
 
 
 import tensorflow as tf
+from sklearn.model_selection import KFold
 HIDDEN = [100,100,100,100,100]
 
 feature_columns = [tf.feature_column.numeric_column("x", shape=[1, x_tr.values.shape[1]])]
@@ -123,25 +124,65 @@ classifier = tf.estimator.DNNClassifier(
     dropout=0.1,
 )
 
+
+k_fold = KFold(n_splits=5)
+scores = []
+for train_indices, test_indices in k_fold.split(x_tr.values):
+    x_tr_values = x_tr.values
+    y_tr_values = y_tr.values
+   
+    x_tr_kfold = x_tr_values[train_indices]
+    x_te_kfold = x_tr_values[test_indices]
+    y_tr_kfold = y_tr_values[train_indices]
+    y_te_kfold = y_tr_values[test_indices]
+
+    train_input_fn = tf.estimator.inputs.numpy_input_fn(
+        x={"x": x_tr_kfold},
+        y=y_tr_kfold,
+        num_epochs=None,
+        batch_size=50,
+        shuffle=True)
+        
+    classifier.train(input_fn=train_input_fn, steps=500)
+
+    train_input_fn = tf.estimator.inputs.numpy_input_fn(
+        x={"x": x_te_kfold},
+        y=y_te_kfold,
+        num_epochs=1,
+        shuffle=False)
+    scores.append(classifier.evaluate(input_fn=train_input_fn)["accuracy"])
+scores = np.array(scores)
+
+
 train_input_fn = tf.estimator.inputs.numpy_input_fn(
     x={"x": x_tr.values},
     y=y_tr.values,
     num_epochs=None,
     batch_size=50,
-    shuffle=True
-)
-classifier.train(input_fn=train_input_fn, steps=1000)
+    shuffle=True)    
+classifier.train(input_fn=train_input_fn, steps=50000)
+
 
 train_input_fn = tf.estimator.inputs.numpy_input_fn(
-    x={"x": x_tr.values},
-    y=y_tr.values,
-    num_epochs=1,
-    shuffle=False
-)
+        x={"x": x_tr.values},
+        y=y_tr.values,
+        num_epochs=1,
+        shuffle=False)
+acc = classifier.evaluate(input_fn=train_input_fn)["accuracy"]
+
+print("\n")
+print("DNN Accuracy = %3.4f" % (acc))
+print("CV Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
 
 
+# Input builders
 
-accuracy_score_train = classifier.evaluate(input_fn=train_input_fn)["accuracy"]
+#classifier.train(input_fn=train_input_fn, steps=100)
 
+
+#predictions = classifier.predict(input_fn=train_input_fn)
+
+#for i in predictions:
+#    print(i)
 
