@@ -80,8 +80,8 @@ if PERFORM_CLASS:
                 'AdaBoost'           : ada     ,
                 'Bagging'            : bag     ,
                 'MLP_sk'             : mlp_sk  ,
-                'SemiSupervised'     : semissl ,
-                'DNN'                : dnn       }
+                'DNN'                : dnn     ,
+                'SemiSupervised'     : semissl}
 
     # Empty results dictionary
     clf_results = {};
@@ -109,7 +109,5 @@ if GEN_OUTPUT:
 
         # Generate the submission file
         titanic.create_submission(data_test['PassengerId'],yhat,fn)
-
-
 
 
