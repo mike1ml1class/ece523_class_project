@@ -90,7 +90,7 @@ if PERFORM_CLASS:
     for key,clf in clf_dict.items():
 
         # Perform classification
-        yhat = clf.analysis(x_tr,y_tr,x_te)
+        yhat,TEMP = clf.analysis(x_tr,y_tr,x_te)
 
         # Store results in dictionary
         clf_results[key] = yhat
