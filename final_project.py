@@ -27,7 +27,7 @@ import mlp_sk  as mlp_sk
 VISUALIZE     = False
 PERFORM_PCA   = False
 PERFORM_CLASS = True
-GEN_OUTPUT    = True
+GEN_OUTPUT    = False
 
 
 # Load the titanic training and testing data
@@ -90,23 +90,23 @@ if PERFORM_CLASS:
     for key,clf in clf_dict.items():
 
         # Perform classification
-        yhat,TEMP = clf.analysis(x_tr,y_tr,x_te)
+        yhat,score_data = clf.analysis(x_tr,y_tr,x_te)
 
         # Store results in dictionary
-        clf_results[key] = yhat
+        clf_results[key] = [yhat,score_data]
 
 
 if GEN_OUTPUT:
 
     print("\n")
 
-    for key,yhat in clf_results.items():
+    for key,clf_result in clf_results.items():
 
         print('Generating %s Output...' % (key))
 
         # Create filename
         fn = key + '_submission.csv'
-
+        yhat = clf_result[0]
         # Generate the submission file
         titanic.create_submission(data_test['PassengerId'],yhat,fn)
 
