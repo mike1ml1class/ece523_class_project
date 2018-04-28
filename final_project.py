@@ -27,7 +27,7 @@ import mlp_sk  as mlp_sk
 VISUALIZE     = False
 PERFORM_PCA   = False
 PERFORM_CLASS = True
-GEN_OUTPUT    = False
+GEN_OUTPUT    = True
 
 
 # Load the titanic training and testing data
@@ -110,4 +110,12 @@ if GEN_OUTPUT:
         # Generate the submission file
         titanic.create_submission(data_test['PassengerId'],yhat,fn)
 
-
+    print('Generating Results Table...')
+    print("\n")
+    print("Classifier\tTraining Score\t k-fold Score\t(+/-)")
+    for key,clf_result in clf_results.items():
+        raw = clf_result[1]
+        print("%s\t%3.4f\t%0.2f\t%0.2f" % (key,raw[2],raw[0],raw[1]))
+        
+        
+        
