@@ -14,7 +14,7 @@ def analysis(x_tr,y_tr,x_te=None):
     # Set up to perform k-fold cross validation
     k_fold = KFold(n_splits=5)
     HIDDEN = [100,100,100,100,100]
-    NUM_STEPS = 10
+    NUM_STEPS = 10000
 
     feature_columns = [tf.feature_column.numeric_column("x", shape=[1, x_tr.values.shape[1]])]
     
@@ -89,4 +89,5 @@ def analysis(x_tr,y_tr,x_te=None):
     else:
         yhat = None
     
-    return yhat
+    data_scores = np.array([scores.mean(),scores.std(),acc])
+    return yhat,data_scores

@@ -33,5 +33,7 @@ def analysis(x_tr,y_tr,x_te=None):
         yhat = clf.predict(x_te)
     else:
         yhat = None
-
-    return yhat
+        
+    data_scores = np.array([scores.mean(),scores.std(),acc])
+    return yhat,data_scores
+    

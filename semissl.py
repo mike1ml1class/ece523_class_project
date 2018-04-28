@@ -83,7 +83,7 @@ def analysis(x_tr,y_tr,x_te=None):
     # Classify the data
     if x_te is not None:
         mode = 0
-        acc,yhat = train_ssl(clf,
+        temp,yhat = train_ssl(clf,
               x_tr_values,
               y_tr_values,
               x_te.values,
@@ -94,4 +94,5 @@ def analysis(x_tr,y_tr,x_te=None):
     else:
         yhat = None
 
-    return yhat
+    data_scores = np.array([scores.mean(),scores.std(),acc])
+    return yhat,data_scores
