@@ -32,6 +32,7 @@ def train_ssl(clf,X_tr_lab,Y_tr_lab,X_tr_unlab,X_test,Y_test,NUM_ITER,THRESHOLD,
     Y_pred = clf.predict(X_test)
     if (mode == 1):
         accuracy, pass_fail = hp.check_accuracy(Y_pred,Y_test)
+        accuracy = accuracy/100
     else:
         accuracy = None
     return accuracy,Y_pred

@@ -25,9 +25,9 @@ import mlp_sk  as mlp_sk
 
 # Setup and Config
 VISUALIZE     = False
-PERFORM_PCA   = False
-PERFORM_CLASS = True
-GEN_OUTPUT    = True
+PERFORM_PCA   = True
+PERFORM_CLASS = False
+GEN_OUTPUT    = False
 
 
 # Load the titanic training and testing data
@@ -65,8 +65,7 @@ if PERFORM_PCA:
     #  sophisticated techniques will be needed to get a decent
     #  score
 
-    pca.analysis(x_tr,y_tr)
-
+    pca.analysis(x_tr.values,y_tr.values)
 
 if PERFORM_CLASS:
 
@@ -115,7 +114,7 @@ if GEN_OUTPUT:
     print("Classifier\tTraining Score\t k-fold Score\t(+/-)")
     for key,clf_result in clf_results.items():
         raw = clf_result[1]
-        print("%s\t%3.4f\t%0.2f\t%0.2f" % (key,raw[2],raw[0],raw[1]))
+        print("%s & %3.4f & %0.2f & %0.2f\\\\" % (key,raw[2]*100,raw[0]*100,raw[1]*100))
         
         
         
