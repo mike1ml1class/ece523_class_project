@@ -21,7 +21,7 @@ import pandas as pd
      Test data has a missing value for Fare, this will be replaced
      by the average fare
 '''
-def fix_fill_convert(x_tr, x_te):
+def fix_fill_convert(x_tr, x_te,ALT_DATA):
 
     # Put data in a list
     data = [x_tr,x_te]
@@ -117,25 +117,27 @@ def fix_fill_convert(x_tr, x_te):
         #df.loc[(df['Age'] >  48) & (df['Age'] <= 64), 'Age'] = 3
         #df.loc[ df['Age'] >  64                     , 'Age'] = 4
 
-        df.loc[ df['Age'] <= 10                     , 'Age'] = 0
-        df.loc[(df['Age'] >  10) & (df['Age'] <= 20), 'Age'] = 1
-        df.loc[(df['Age'] >  20) & (df['Age'] <= 30), 'Age'] = 2
-        df.loc[(df['Age'] >  30) & (df['Age'] <= 40), 'Age'] = 3
-        df.loc[(df['Age'] >  40) & (df['Age'] <= 50), 'Age'] = 4
-        df.loc[(df['Age'] >  50) & (df['Age'] <= 60), 'Age'] = 5
-        df.loc[(df['Age'] >  60) & (df['Age'] <= 70), 'Age'] = 6
-        df.loc[ df['Age'] >  70                     , 'Age'] = 7
+        if not ALT_DATA:
+            df.loc[ df['Age'] <= 10                     , 'Age'] = 0
+            df.loc[(df['Age'] >  10) & (df['Age'] <= 20), 'Age'] = 1
+            df.loc[(df['Age'] >  20) & (df['Age'] <= 30), 'Age'] = 2
+            df.loc[(df['Age'] >  30) & (df['Age'] <= 40), 'Age'] = 3
+            df.loc[(df['Age'] >  40) & (df['Age'] <= 50), 'Age'] = 4
+            df.loc[(df['Age'] >  50) & (df['Age'] <= 60), 'Age'] = 5
+            df.loc[(df['Age'] >  60) & (df['Age'] <= 70), 'Age'] = 6
+            df.loc[ df['Age'] >  70                     , 'Age'] = 7
 
         # Create FamilySize by combining SibSp (num siblings/spouses) and Parch (num parents/children)
         df['FamilySize'] = df['SibSp'] + df['Parch'] + 1
 
-        # Remove SibSp and Parch
-        df = df.drop(['SibSp'] , axis=1)
-        df = df.drop(['Parch'] , axis=1)
-
-        # Create Solo for those traveling alone
-        df['Solo'] = 0
-        df.loc[df['FamilySize'] == 1, 'Solo'] = 1
+        if not ALT_DATA:
+            # Remove SibSp and Parch
+            df = df.drop(['SibSp'] , axis=1)
+            df = df.drop(['Parch'] , axis=1)
+    
+            # Create Solo for those traveling alone
+            df['Solo'] = 0
+            df.loc[df['FamilySize'] == 1, 'Solo'] = 1
 
         # Remove FamilySize too
         #df = df.drop(['FamilySize'])
@@ -170,17 +172,18 @@ def fix_fill_convert(x_tr, x_te):
         #8   (39.688, 77.958]  0.528090
         #9  (77.958, 512.329]  0.758621
 
-        # Convert the category bins into numerical values - TODO: figure out how to automate this
-        df.loc[ df['Fare'] <= 7.55                            , 'Fare'] = 0
-        df.loc[(df['Fare'] >  7.55  ) & (df['Fare'] <= 7.845 ), 'Fare'] = 1
-        df.loc[(df['Fare'] >  7.854 ) & (df['Fare'] <= 8.05  ), 'Fare'] = 2
-        df.loc[(df['Fare'] >  8.05  ) & (df['Fare'] <= 10.5  ), 'Fare'] = 3
-        df.loc[(df['Fare'] >  10.5  ) & (df['Fare'] <= 14.454), 'Fare'] = 4
-        df.loc[(df['Fare'] >  14.454) & (df['Fare'] <= 21.679), 'Fare'] = 5
-        df.loc[(df['Fare'] >  21.679) & (df['Fare'] <= 27.0  ), 'Fare'] = 6
-        df.loc[(df['Fare'] >  27.0  ) & (df['Fare'] <= 39.688), 'Fare'] = 7
-        df.loc[(df['Fare'] >  39.688) & (df['Fare'] <= 77.958), 'Fare'] = 8
-        df.loc[ df['Fare'] >  77.958                          , 'Fare'] = 9
+        if not ALT_DATA:
+            # Convert the category bins into numerical values - TODO: figure out how to automate this
+            df.loc[ df['Fare'] <= 7.55                            , 'Fare'] = 0
+            df.loc[(df['Fare'] >  7.55  ) & (df['Fare'] <= 7.845 ), 'Fare'] = 1
+            df.loc[(df['Fare'] >  7.854 ) & (df['Fare'] <= 8.05  ), 'Fare'] = 2
+            df.loc[(df['Fare'] >  8.05  ) & (df['Fare'] <= 10.5  ), 'Fare'] = 3
+            df.loc[(df['Fare'] >  10.5  ) & (df['Fare'] <= 14.454), 'Fare'] = 4
+            df.loc[(df['Fare'] >  14.454) & (df['Fare'] <= 21.679), 'Fare'] = 5
+            df.loc[(df['Fare'] >  21.679) & (df['Fare'] <= 27.0  ), 'Fare'] = 6
+            df.loc[(df['Fare'] >  27.0  ) & (df['Fare'] <= 39.688), 'Fare'] = 7
+            df.loc[(df['Fare'] >  39.688) & (df['Fare'] <= 77.958), 'Fare'] = 8
+            df.loc[ df['Fare'] >  77.958                          , 'Fare'] = 9
 
         # Overwrite the original df
         data[idx] = df

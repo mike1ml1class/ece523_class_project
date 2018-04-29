@@ -15,7 +15,8 @@ def analysis(x_tr,y_tr,x_te=None):
     k_fold = KFold(n_splits=5)
     HIDDEN = [100,100,100,100,100]
     NUM_STEPS = 1000
-
+    mode = 1
+    
     feature_columns = [tf.feature_column.numeric_column("x", shape=[1, x_tr.values.shape[1]])]
     
     classifier = tf.estimator.DNNClassifier(
@@ -26,30 +27,35 @@ def analysis(x_tr,y_tr,x_te=None):
         dropout=0.1)
 
     scores = []
-    for train_indices, test_indices in k_fold.split(x_tr.values):
-        x_tr_values = x_tr.values
-        y_tr_values = y_tr.values
-   
-        x_tr_kfold = x_tr_values[train_indices]
-        x_te_kfold = x_tr_values[test_indices]
-        y_tr_kfold = y_tr_values[train_indices]
-        y_te_kfold = y_tr_values[test_indices]
-
-        train_input_fn = tf.estimator.inputs.numpy_input_fn(
-            x={"x": x_tr_kfold},
-            y=y_tr_kfold,
-            num_epochs=None,
-            batch_size=50,
-            shuffle=True)
+    
+    if mode==1:
+        for train_indices, test_indices in k_fold.split(x_tr.values):
+            x_tr_values = x_tr.values
+            y_tr_values = y_tr.values
+    
+            x_tr_kfold = x_tr_values[train_indices]
+            x_te_kfold = x_tr_values[test_indices]
+            y_tr_kfold = y_tr_values[train_indices]
+            y_te_kfold = y_tr_values[test_indices]
+    
+            train_input_fn = tf.estimator.inputs.numpy_input_fn(
+                x={"x": x_tr_kfold},
+                y=y_tr_kfold,
+                num_epochs=None,
+                batch_size=50,
+                shuffle=True)
+            
+            classifier.train(input_fn=train_input_fn, steps=NUM_STEPS)
+    
+            train_input_fn = tf.estimator.inputs.numpy_input_fn(
+                x={"x": x_te_kfold},
+                y=y_te_kfold,
+                num_epochs=1,
+                shuffle=False)
+            scores.append(classifier.evaluate(input_fn=train_input_fn)["accuracy"])
+    else:
+        scores = []
         
-        classifier.train(input_fn=train_input_fn, steps=NUM_STEPS)
-
-        train_input_fn = tf.estimator.inputs.numpy_input_fn(
-            x={"x": x_te_kfold},
-            y=y_te_kfold,
-            num_epochs=1,
-            shuffle=False)
-        scores.append(classifier.evaluate(input_fn=train_input_fn)["accuracy"])
         
     scores = np.array(scores)
     # Set up to get training accuracy

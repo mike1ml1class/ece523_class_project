@@ -22,20 +22,19 @@ import bagging as bag
 import semissl as semissl
 import mlp_sk  as mlp_sk
 
-
 # Setup and Config
-VISUALIZE     = False
+VISUALIZE     = True
 PERFORM_PCA   = True
-PERFORM_CLASS = False
-GEN_OUTPUT    = False
-
+PERFORM_CLASS = True
+GEN_OUTPUT    = True
+ALT_DATA      = True
 
 # Load the titanic training and testing data
 data_train = pd.read_csv('train.csv')
 data_test  = pd.read_csv('test.csv')
 
 # Convert categorical data to numerical and fill in missing values
-data = titanic.fix_fill_convert(data_train,data_test)
+data = titanic.fix_fill_convert(data_train,data_test,ALT_DATA)
 
 # Extract the fixed data frames
 df_tr = data[0]                  # Training data
@@ -46,15 +45,11 @@ x_tr = df_tr.drop("Survived", axis=1)
 y_tr = df_tr["Survived"]
 x_te = df_te
 
-
 if VISUALIZE:
-
     # Visualize data and correlations to survival
     titanic.visualize_data(data_train,data_test)
 
-
 if PERFORM_PCA:
-
     # Create Reduced Feature Data using PCA
     # -Using three components to reduce features.  Will plot
     #  each axis against the others to see if there is any
@@ -64,11 +59,9 @@ if PERFORM_PCA:
     #  to be. Indicates data is not linearly seperable and more
     #  sophisticated techniques will be needed to get a decent
     #  score
-
     pca.analysis(x_tr.values,y_tr.values)
 
 if PERFORM_CLASS:
-
     # Classifier dictionary
     clf_dict = {'LinSVM'             : svm_lin ,
                 'RbfSVM'             : svm_rbf ,
@@ -93,7 +86,6 @@ if PERFORM_CLASS:
 
         # Store results in dictionary
         clf_results[key] = [yhat,score_data]
-
 
 if GEN_OUTPUT:
 
