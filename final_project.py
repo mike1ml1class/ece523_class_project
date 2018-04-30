@@ -27,7 +27,7 @@ VISUALIZE     = True
 PERFORM_PCA   = True
 PERFORM_CLASS = True
 GEN_OUTPUT    = True
-ALT_DATA      = True
+ALT_DATA      = False
 
 # Load the titanic training and testing data
 data_train = pd.read_csv('train.csv')
@@ -44,8 +44,8 @@ df_te = data[1]                  # Testing data
 # Create features and labels
 x_tr = df_tr.drop("Survived", axis=1)
 y_tr = df_tr["Survived"]
-x_te = df_te
-y_te = []
+x_te = df_te.drop("Survived", axis=1)
+y_te = df_te["Survived"]
 
 if VISUALIZE:
     # Visualize data and correlations to survival
@@ -105,10 +105,10 @@ if GEN_OUTPUT:
 
     print('Generating Results Table...')
     print("\n")
-    print("Classifier\tTraining Score\t k-fold Score\t(+/-)")
+    print("Classifier\tTraining Score\t k-fold Score\t(+/-) Test Score")
     for key,clf_result in clf_results.items():
         raw = clf_result[1]
-        print("%s & %3.4f & %0.2f & %0.2f\\\\" % (key,raw[2]*100,raw[0]*100,raw[1]*100))
+        print("%s & %3.4f & %0.2f & %0.2f & %0.2f\\\\" % (key,raw[2]*100,raw[0]*100,raw[1]*100,raw[3]))
         
         
         
