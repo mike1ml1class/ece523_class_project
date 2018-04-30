@@ -45,6 +45,7 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
     test_score = 0
     if x_te is not None:
         yhat = clf.predict(x_te)
+        test_score, notneeded = hp.check_accuracy(yhat,y_te)
     else:
         yhat = None
 

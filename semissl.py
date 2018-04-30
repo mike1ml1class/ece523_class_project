@@ -90,9 +90,10 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
               y_tr_values,
               x_te.values,
               x_te.values,
-              [],
+              y_te.values,
               NUM_ITER,
               THRESHOLD,mode)
+        test_score, notneeded = hp.check_accuracy(yhat,y_te)      
     else:
         yhat = None
 

@@ -93,6 +93,7 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
         for i in predictions:
             y_pred.append(int(i['classes']))
         yhat = np.array(y_pred)
+        test_score, notneeded = hp.check_accuracy(yhat,y_te)
     else:
         yhat = None
     
