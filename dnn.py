@@ -9,7 +9,7 @@ from sklearn.model_selection import KFold
 # Import our modules
 import helpers as hp
 
-def analysis(x_tr,y_tr,x_te=None):
+def analysis(x_tr,y_tr,x_te=None,y_te=None):
     
     # Set up to perform k-fold cross validation
     k_fold = KFold(n_splits=5)

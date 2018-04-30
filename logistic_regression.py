@@ -10,7 +10,7 @@ from sklearn.model_selection import cross_val_score
 # Import our modules
 import helpers as hp
 
-def analysis(x_tr,y_tr,x_te=None):
+def analysis(x_tr,y_tr,x_te=None,y_te=None):
     #print("Performing Logistic Regression Classification!")
 
     # Create the classifier

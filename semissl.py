@@ -37,7 +37,7 @@ def train_ssl(clf,X_tr_lab,Y_tr_lab,X_tr_unlab,X_test,Y_test,NUM_ITER,THRESHOLD,
         accuracy = None
     return accuracy,Y_pred
 
-def analysis(x_tr,y_tr,x_te=None):
+def analysis(x_tr,y_tr,x_te=None,y_te=None):
     mode = 1
     print("Performing SSL Classification!")
     

@@ -31,7 +31,8 @@ ALT_DATA      = True
 
 # Load the titanic training and testing data
 data_train = pd.read_csv('train.csv')
-data_test  = pd.read_csv('test.csv')
+#data_test  = pd.read_csv('test.csv')
+data_test  = pd.read_csv('test_w_survive_data.csv')
 
 # Convert categorical data to numerical and fill in missing values
 data = titanic.fix_fill_convert(data_train,data_test,ALT_DATA)
@@ -44,6 +45,7 @@ df_te = data[1]                  # Testing data
 x_tr = df_tr.drop("Survived", axis=1)
 y_tr = df_tr["Survived"]
 x_te = df_te
+y_te = []
 
 if VISUALIZE:
     # Visualize data and correlations to survival
@@ -82,7 +84,7 @@ if PERFORM_CLASS:
     for key,clf in clf_dict.items():
 
         # Perform classification
-        yhat,score_data = clf.analysis(x_tr,y_tr,x_te)
+        yhat,score_data = clf.analysis(x_tr,y_tr,x_te,y_te)
 
         # Store results in dictionary
         clf_results[key] = [yhat,score_data]
