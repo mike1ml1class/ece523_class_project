@@ -8,16 +8,26 @@ from sklearn.model_selection import KFold
 
 # Import our modules
 import helpers as hp
+import titanic as ti
 
 def analysis(x_tr,y_tr,x_te=None,y_te=None):
     
     # Set up to perform k-fold cross validation
     k_fold = KFold(n_splits=5)
-    HIDDEN = [100,100,100,100,100]
-    NUM_STEPS = 1000
-    mode = 1
+    HIDDEN = [200,200,200,200,200]
+    NUM_STEPS = 100000
+    mode = 0
     
     feature_columns = [tf.feature_column.numeric_column("x", shape=[1, x_tr.values.shape[1]])]
+    
+    # Normalize the data for the DNN
+    for column in x_tr:
+        print(column)
+        x_tr = ti.normalize_column(x_tr,column) 
+        
+    for column in x_te:
+        print(column)
+        x_te = ti.normalize_column(x_te,column)    
     
     classifier = tf.estimator.DNNClassifier(
         feature_columns=feature_columns,

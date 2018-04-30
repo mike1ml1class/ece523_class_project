@@ -110,5 +110,7 @@ if GEN_OUTPUT:
         raw = clf_result[1]
         print("%s & %3.4f & %0.2f & %0.2f & %0.2f\\\\" % (key,raw[2]*100,raw[0]*100,raw[1]*100,raw[3]))
         
-        
-        
+
+    
+    
+    

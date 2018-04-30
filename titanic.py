@@ -6,6 +6,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
 '''
  Clean, fill, fix and create new features from the data:
 
@@ -279,11 +280,12 @@ def visualize_data(x_tr,x_te):
     g = grid.map(plt.bar, 'Sex','Fare')
     g.savefig('Fare_hist')
 
-
+def normalize_column(data,field):
+    scaler = MinMaxScaler()
+    data[field] = scaler.fit_transform(data[field].values.reshape(-1,1))
+    return data
 
 def create_submission(passenger_id,survived,filename):
-
     submission = pd.DataFrame({"PassengerId": passenger_id,
                                "Survived"   : survived      })
-
     submission.to_csv(filename, index=False)
