@@ -27,7 +27,7 @@ VISUALIZE     = True
 PERFORM_PCA   = True
 PERFORM_CLASS = True
 GEN_OUTPUT    = True
-ALT_DATA      = False
+ALT_DATA      = True
 
 # Load the titanic training and testing data
 data_train = pd.read_csv('train.csv')
