@@ -81,6 +81,7 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
     print("CV Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
     # Classify the data
+    test_score = 0
     if x_te is not None:
         train_input_fn = tf.estimator.inputs.numpy_input_fn(
             x={"x": x_te.values},
@@ -95,5 +96,5 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
     else:
         yhat = None
     
-    data_scores = np.array([scores.mean(),scores.std(),acc])
+    data_scores = np.array([scores.mean(),scores.std(),acc,test_score])
     return yhat,data_scores

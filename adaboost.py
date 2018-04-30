@@ -29,10 +29,11 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
     print("CV Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
     # Classify the data
+    test_score = 0
     if x_te is not None:
         yhat = clf.predict(x_te)
     else:
         yhat = None
 
-    data_scores = np.array([scores.mean(),scores.std(),acc])
+    data_scores = np.array([scores.mean(),scores.std(),acc,test_score])
     return yhat,data_scores
