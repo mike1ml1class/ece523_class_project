@@ -12,3 +12,5 @@ output/submission.csv
 *.csv
 output/submission.csv
 *.gz
+all_passengers.xlsx
+~$all_passengers.xlsx
