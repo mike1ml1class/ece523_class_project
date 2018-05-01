@@ -11,24 +11,24 @@ import helpers as hp
 import titanic as ti
 
 def analysis(x_tr,y_tr,x_te=None,y_te=None):
-    
+
     # Set up to perform k-fold cross validation
     k_fold = KFold(n_splits=5)
     HIDDEN = [100,100,100,100,100]
-    NUM_STEPS = 100000
+    NUM_STEPS = 1000
     mode = 0
-    
+
     feature_columns = [tf.feature_column.numeric_column("x", shape=[1, x_tr.values.shape[1]])]
-    
+
     # Normalize the data for the DNN
     for column in x_tr:
-        print(column)
-        x_tr = ti.normalize_column(x_tr,column) 
-        
+        #print(column)
+        x_tr = ti.normalize_column(x_tr,column)
+
     for column in x_te:
-        print(column)
-        x_te = ti.normalize_column(x_te,column)    
-    
+        #print(column)
+        x_te = ti.normalize_column(x_te,column)
+
     classifier = tf.estimator.DNNClassifier(
         feature_columns=feature_columns,
         hidden_units=HIDDEN,
@@ -37,26 +37,26 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
         dropout=0.1)
 
     scores = []
-    
+
     if mode==1:
         for train_indices, test_indices in k_fold.split(x_tr.values):
             x_tr_values = x_tr.values
             y_tr_values = y_tr.values
-    
+
             x_tr_kfold = x_tr_values[train_indices]
             x_te_kfold = x_tr_values[test_indices]
             y_tr_kfold = y_tr_values[train_indices]
             y_te_kfold = y_tr_values[test_indices]
-    
+
             train_input_fn = tf.estimator.inputs.numpy_input_fn(
                 x={"x": x_tr_kfold},
                 y=y_tr_kfold,
                 num_epochs=None,
                 batch_size=50,
                 shuffle=True)
-            
+
             classifier.train(input_fn=train_input_fn, steps=NUM_STEPS)
-    
+
             train_input_fn = tf.estimator.inputs.numpy_input_fn(
                 x={"x": x_te_kfold},
                 y=y_te_kfold,
@@ -65,8 +65,8 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
             scores.append(classifier.evaluate(input_fn=train_input_fn)["accuracy"])
     else:
         scores = []
-        
-        
+
+
     scores = np.array(scores)
     # Set up to get training accuracy
     train_input_fn = tf.estimator.inputs.numpy_input_fn(
@@ -74,8 +74,8 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
         y=y_tr.values,
         num_epochs=None,
         batch_size=50,
-        shuffle=True) 
-        
+        shuffle=True)
+
     classifier.train(input_fn=train_input_fn, steps=NUM_STEPS)
 
     train_input_fn = tf.estimator.inputs.numpy_input_fn(
@@ -83,7 +83,7 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
         y=y_tr.values,
         num_epochs=1,
         shuffle=False)
-        
+
     acc = classifier.evaluate(input_fn=train_input_fn)["accuracy"]
 
     print("\n")
@@ -97,7 +97,7 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
             x={"x": x_te.values},
             num_epochs=1,
             shuffle=False)
-        
+
         predictions = classifier.predict(input_fn=train_input_fn)
         y_pred = []
         for i in predictions:
@@ -106,6 +106,6 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
         test_score, notneeded = hp.check_accuracy(yhat,y_te)
     else:
         yhat = None
-    
+
     data_scores = np.array([scores.mean(),scores.std(),acc,test_score])
     return yhat,data_scores

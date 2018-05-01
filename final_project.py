@@ -19,11 +19,11 @@ import pca as pca
 import dnn as dnn
 import adaboost as ada
 import bagging as bag
-import semissl as semissl
+import semissl as ssl
 import mlp_sk  as mlp_sk
 
 # Setup and Config
-VISUALIZE     = True
+VISUALIZE     = False
 PERFORM_PCA   = True
 PERFORM_CLASS = True
 GEN_OUTPUT    = True
@@ -47,6 +47,8 @@ y_tr = df_tr["Survived"]
 x_te = df_te.drop("Survived", axis=1)
 y_te = df_te["Survived"]
 
+
+
 if VISUALIZE:
     # Visualize data and correlations to survival
     titanic.visualize_data(data_train,data_test)
@@ -63,6 +65,20 @@ if PERFORM_PCA:
     #  score
     pca.analysis(x_tr.values,y_tr.values)
 
+    # Look at the logistic regression correlation coefs
+    lr.coefs(x_tr,y_tr)
+
+    #      Feature  Correlation
+    #1         Sex     2.186664
+    #5       Title     0.476381
+    #4    Embarked     0.219600
+    #3        Fare     0.124917
+    #7        Solo    -0.334978
+    #2         Age    -0.351122
+    #6  FamilySize    -0.457172
+    #0      Pclass    -0.779021
+
+
 if PERFORM_CLASS:
     # Classifier dictionary
     clf_dict = {'LinSVM'             : svm_lin ,
@@ -74,8 +90,8 @@ if PERFORM_CLASS:
                 'AdaBoost'           : ada     ,
                 'Bagging'            : bag     ,
                 'MLP_sk'             : mlp_sk  ,
-                'DNN'                : dnn     ,
-                'SemiSupervised'     : semissl}
+                #'DNN'                : dnn     ,
+                'SemiSupervised'     : ssl       }
 
     # Empty results dictionary
     clf_results = {};
@@ -109,8 +125,7 @@ if GEN_OUTPUT:
     for key,clf_result in clf_results.items():
         raw = clf_result[1]
         print("%s & %3.4f & %0.2f & %0.2f & %0.2f\\\\" % (key,raw[2]*100,raw[0]*100,raw[1]*100,raw[3]))
-        
 
-    
-    
-    
+
+
+
