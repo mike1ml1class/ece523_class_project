@@ -24,11 +24,11 @@ import mlp_sk  as mlp_sk
 
 # Setup and Config
 VISUALIZE       = False
-PERFORM_PCA     = False
+PERFORM_PCA     = True
 PERFORM_CLASS   = True
 GEN_OUTPUT      = True
 ALT_DATA        = True
-NUM_DROP_LOWCOR = 1
+NUM_DROP_LOWCOR = 0
 
 # Load the titanic training and testing data
 data_train = pd.read_csv('train.csv')
