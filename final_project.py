@@ -19,15 +19,16 @@ import pca as pca
 import dnn as dnn
 import adaboost as ada
 import bagging as bag
-import semissl as ssl
+import semi_supervised as ssl
 import mlp_sk  as mlp_sk
 
 # Setup and Config
-VISUALIZE     = False
-PERFORM_PCA   = True
-PERFORM_CLASS = True
-GEN_OUTPUT    = True
-ALT_DATA      = True
+VISUALIZE       = False
+PERFORM_PCA     = False
+PERFORM_CLASS   = True
+GEN_OUTPUT      = True
+ALT_DATA        = True
+NUM_DROP_LOWCOR = 1
 
 # Load the titanic training and testing data
 data_train = pd.read_csv('train.csv')
@@ -47,6 +48,26 @@ y_tr = df_tr["Survived"]
 x_te = df_te.drop("Survived", axis=1)
 y_te = df_te["Survived"]
 
+
+if NUM_DROP_LOWCOR > 0:
+
+        for ii in range(NUM_DROP_LOWCOR):
+
+            if ALT_DATA:
+
+                # Low correlation list sorted
+                lcs = ['Age*Class','Fare','Embarked','Age','Solo','FamilySize','Title','Pclass']
+
+                x_tr = x_tr.drop(lcs[ii] ,axis=1)
+                x_te = x_te.drop(lcs[ii] ,axis=1)
+
+            else:
+
+                # Low correlation list sorted
+                lcs = ['Fare','Age','Embarked','FamilySize','Parch','SibSp','Pclass']
+
+                x_tr = x_tr.drop(lcs[ii] ,axis=1)
+                x_te = x_te.drop(lcs[ii] ,axis=1)
 
 
 if VISUALIZE:

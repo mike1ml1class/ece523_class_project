@@ -42,22 +42,23 @@ def fix_fill_convert(x_tr, x_te,ALT_DATA):
         # fill mising value of fare with average fare
         df['Fare'] = df['Fare'].fillna(average_fare)
 
-        # Extract each person's title from their name
-        df['Title'] = df.Name.str.extract(' ([A-Za-z]+)\.',expand=False)
+        if ALT_DATA:
+            # Extract each person's title from their name
+            df['Title'] = df.Name.str.extract(' ([A-Za-z]+)\.',expand=False)
 
-        # Replace uncommon titles with "Rare"
-        df['Title'] = df['Title'].replace(['Lady', 'Countess','Capt', 'Col',\
-           'Don', 'Dr', 'Major', 'Rev', 'Sir', 'Jonkheer', 'Dona'], 'Rare')
+            # Replace uncommon titles with "Rare"
+            df['Title'] = df['Title'].replace(['Lady', 'Countess','Capt', 'Col',\
+               'Don', 'Dr', 'Major', 'Rev', 'Sir', 'Jonkheer', 'Dona'], 'Rare')
 
-        # Replace old-world names with modern ones
-        df['Title'] = df['Title'].replace('Mlle', 'Miss')
-        df['Title'] = df['Title'].replace('Ms', 'Miss')
-        df['Title'] = df['Title'].replace('Mme', 'Mrs')
+            # Replace old-world names with modern ones
+            df['Title'] = df['Title'].replace('Mlle', 'Miss')
+            df['Title'] = df['Title'].replace('Ms', 'Miss')
+            df['Title'] = df['Title'].replace('Mme', 'Mrs')
 
-        # Convert categorical to numerical
-        title_mapping = {"Mr": 1, "Miss": 2, "Mrs": 3, "Master": 4, "Rare": 5}
-        df['Title'] = df['Title'].fillna(0)
-        df['Title'] = df['Title'].map(title_mapping)
+            # Convert categorical to numerical
+            title_mapping = {"Mr": 1, "Miss": 2, "Mrs": 3, "Master": 4, "Rare": 5}
+            df['Title'] = df['Title'].fillna(0)
+            df['Title'] = df['Title'].map(title_mapping)
 
         # Remove Name, don't need it anymore
         df = df.drop(['Name'], axis=1)
@@ -118,7 +119,7 @@ def fix_fill_convert(x_tr, x_te,ALT_DATA):
         #df.loc[(df['Age'] >  48) & (df['Age'] <= 64), 'Age'] = 3
         #df.loc[ df['Age'] >  64                     , 'Age'] = 4
 
-        if not ALT_DATA:
+        if ALT_DATA:
             df.loc[ df['Age'] <= 10                     , 'Age'] = 0
             df.loc[(df['Age'] >  10) & (df['Age'] <= 20), 'Age'] = 1
             df.loc[(df['Age'] >  20) & (df['Age'] <= 30), 'Age'] = 2
@@ -131,11 +132,11 @@ def fix_fill_convert(x_tr, x_te,ALT_DATA):
         # Create FamilySize by combining SibSp (num siblings/spouses) and Parch (num parents/children)
         df['FamilySize'] = df['SibSp'] + df['Parch'] + 1
 
-        if not ALT_DATA:
+        if ALT_DATA:
             # Remove SibSp and Parch
             df = df.drop(['SibSp'] , axis=1)
             df = df.drop(['Parch'] , axis=1)
-    
+
             # Create Solo for those traveling alone
             df['Solo'] = 0
             df.loc[df['FamilySize'] == 1, 'Solo'] = 1
@@ -144,7 +145,8 @@ def fix_fill_convert(x_tr, x_te,ALT_DATA):
         #df = df.drop(['FamilySize'])
 
         # Create a new feature by combining
-        #df['Age*Class'] = df.Age * df.Pclass
+        if ALT_DATA:
+            df['Age*Class'] = df.Age * df.Pclass
 
         # Fill missing port of departure with the most common and convert to numerical
         port_mode = df.Embarked.dropna().mode()[0]
@@ -173,7 +175,7 @@ def fix_fill_convert(x_tr, x_te,ALT_DATA):
         #8   (39.688, 77.958]  0.528090
         #9  (77.958, 512.329]  0.758621
 
-        if not ALT_DATA:
+        if ALT_DATA:
             # Convert the category bins into numerical values - TODO: figure out how to automate this
             df.loc[ df['Fare'] <= 7.55                            , 'Fare'] = 0
             df.loc[(df['Fare'] >  7.55  ) & (df['Fare'] <= 7.845 ), 'Fare'] = 1

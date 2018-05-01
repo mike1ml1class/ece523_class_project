@@ -68,10 +68,13 @@ def coefs(x_tr,y_tr,x_te=None,y_te=None):
     coeff_df = pd.DataFrame(x_tr.columns)
     coeff_df.columns = ['Feature']
     coeff_df["Correlation"] = pd.Series(clf.coef_[0])
-    coeff_df.sort_values(by='Correlation', ascending=False)
+    coeff_df["AbsCorrelation"] = pd.Series(np.abs(clf.coef_[0]))
 
-    print(acc)
+    print("\n")
     print(coeff_df.sort_values(by='Correlation', ascending=False))
+    print("\n")
+    print(coeff_df.sort_values(by='AbsCorrelation', ascending=False))
+
 
 
 #    feats = ['Sex','Title','Age','Embarked','FamilySize','Solo','Fare','Pclass']
