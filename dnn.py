@@ -14,7 +14,7 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
     
     # Set up to perform k-fold cross validation
     k_fold = KFold(n_splits=5)
-    HIDDEN = [200,200,200,200,200]
+    HIDDEN = [100,100,100,100,100]
     NUM_STEPS = 100000
     mode = 0
     
