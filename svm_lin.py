@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from sklearn.svm import SVC
+from sklearn.preprocessing import PolynomialFeatures
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import cross_val_score
@@ -14,6 +15,17 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
 
     # Create the SVM classifier
     svm = SVC(kernel='linear',C=0.25)
+
+    if (0):
+
+        # Genearate a feature matrix of polynomial combinations (Cover's Thm)
+        poly = PolynomialFeatures(degree=3)
+
+        # Map or transform training data to higher level
+        x_tr = poly.fit_transform(x_tr)
+
+        # Map or transform test data to higher level
+        x_te = poly.fit_transform(x_te)
 
     # Train the models
     svm.fit(x_tr, y_tr)

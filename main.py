@@ -23,11 +23,12 @@ import semi_supervised as ssl
 import mlp_sk  as mlp_sk
 
 # Setup and Config
-VISUALIZE       = False
-PERFORM_PCA     = True
-PERFORM_CLASS   = True
-GEN_OUTPUT      = True
+VISUALIZE       = True
+PERFORM_PCA     = False
+PERFORM_CLASS   = False
+GEN_OUTPUT      = False
 ALT_DATA        = True
+LR_CORR         = True
 NUM_DROP_LOWCOR = 0
 
 # Load the titanic training and testing data
@@ -51,23 +52,34 @@ y_te = df_te["Survived"]
 
 if NUM_DROP_LOWCOR > 0:
 
-        for ii in range(NUM_DROP_LOWCOR):
+    #      Feature  Correlation
+    #1         Sex     2.186664
+    #5       Title     0.476381
+    #4    Embarked     0.219600
+    #3        Fare     0.124917
+    #7        Solo    -0.334978
+    #2         Age    -0.351122
+    #6  FamilySize    -0.457172
+    #0      Pclass    -0.779021
 
-            if ALT_DATA:
+    for ii in range(NUM_DROP_LOWCOR):
 
-                # Low correlation list sorted
-                lcs = ['Age*Class','Fare','Embarked','Age','Solo','FamilySize','Title','Pclass']
+        if ALT_DATA:
 
-                x_tr = x_tr.drop(lcs[ii] ,axis=1)
-                x_te = x_te.drop(lcs[ii] ,axis=1)
+            # Low correlation list sorted low to high
+            # Note: List is dynamic as features drop and does not match list above
+            lcs = ['Fare','Embarked','Age','FamilySize','Solo','Title','Pclass']
 
-            else:
+            x_tr = x_tr.drop(lcs[ii] ,axis=1)
+            x_te = x_te.drop(lcs[ii] ,axis=1)
 
-                # Low correlation list sorted
-                lcs = ['Fare','Age','Embarked','FamilySize','Parch','SibSp','Pclass']
+        else:
 
-                x_tr = x_tr.drop(lcs[ii] ,axis=1)
-                x_te = x_te.drop(lcs[ii] ,axis=1)
+            # Low correlation list sorted low to high
+            lcs = ['Fare','Age','Embarked','FamilySize','Parch','SibSp','Pclass']
+
+            x_tr = x_tr.drop(lcs[ii] ,axis=1)
+            x_te = x_te.drop(lcs[ii] ,axis=1)
 
 
 if VISUALIZE:
@@ -86,6 +98,7 @@ if PERFORM_PCA:
     #  score
     pca.analysis(x_tr.values,y_tr.values)
 
+if LR_CORR:
     # Look at the logistic regression correlation coefs
     lr.coefs(x_tr,y_tr)
 
@@ -111,7 +124,7 @@ if PERFORM_CLASS:
                 'AdaBoost'           : ada     ,
                 'Bagging'            : bag     ,
                 'MLP_sk'             : mlp_sk  ,
-                #'DNN'                : dnn     ,
+                'DNN'                : dnn     ,
                 'SemiSupervised'     : ssl       }
 
     # Empty results dictionary
@@ -145,7 +158,7 @@ if GEN_OUTPUT:
     print("Classifier\tTraining Score\t k-fold Score\t(+/-) Test Score")
     for key,clf_result in clf_results.items():
         raw = clf_result[1]
-        print("%s & %3.4f & %0.2f & %0.2f & %0.2f\\\\" % (key,raw[2]*100,raw[0]*100,raw[1]*100,raw[3]))
+        print("%-20s & %3.4f & %0.2f & %0.2f & %0.2f\\\\" % (key,raw[2]*100,raw[0]*100,raw[1]*100,raw[3]))
 
 
 

@@ -119,6 +119,10 @@ def fix_fill_convert(x_tr, x_te,ALT_DATA):
         #df.loc[(df['Age'] >  48) & (df['Age'] <= 64), 'Age'] = 3
         #df.loc[ df['Age'] >  64                     , 'Age'] = 4
 
+        # Convert the category bins into numerical values - TODO: figure out how to automate this
+        #df.loc[ df['Age'] <= 10  , 'Age'] = 0
+        #df.loc[(df['Age'] >  10) , 'Age'] = 1
+
         if ALT_DATA:
             df.loc[ df['Age'] <= 10                     , 'Age'] = 0
             df.loc[(df['Age'] >  10) & (df['Age'] <= 20), 'Age'] = 1
@@ -129,10 +133,12 @@ def fix_fill_convert(x_tr, x_te,ALT_DATA):
             df.loc[(df['Age'] >  60) & (df['Age'] <= 70), 'Age'] = 6
             df.loc[ df['Age'] >  70                     , 'Age'] = 7
 
-        # Create FamilySize by combining SibSp (num siblings/spouses) and Parch (num parents/children)
-        df['FamilySize'] = df['SibSp'] + df['Parch'] + 1
 
         if ALT_DATA:
+            # Create FamilySize by combining SibSp (num siblings/spouses)
+            # and Parch (num parents/children)
+            df['FamilySize'] = df['SibSp'] + df['Parch'] + 1
+
             # Remove SibSp and Parch
             df = df.drop(['SibSp'] , axis=1)
             df = df.drop(['Parch'] , axis=1)
@@ -141,12 +147,12 @@ def fix_fill_convert(x_tr, x_te,ALT_DATA):
             df['Solo'] = 0
             df.loc[df['FamilySize'] == 1, 'Solo'] = 1
 
-        # Remove FamilySize too
-        #df = df.drop(['FamilySize'])
+            # Remove FamilySize too
+            #df = df.drop(['FamilySize'])
 
         # Create a new feature by combining
-        if ALT_DATA:
-            df['Age*Class'] = df.Age * df.Pclass
+        #if ALT_DATA:
+            #df['Age*Class'] = df.Age * df.Pclass
 
         # Fill missing port of departure with the most common and convert to numerical
         port_mode = df.Embarked.dropna().mode()[0]
@@ -217,9 +223,9 @@ def visualize_data(x_tr,x_te):
     out = x_tr[['Sex', 'Survived']].groupby(['Sex'], as_index=False).mean().sort_values(by='Survived', ascending=False)
     print(out)
 
-    print('\n')
-    out = x_tr[['Cabin', 'Survived']].groupby(['Cabin'], as_index=False).mean().sort_values(by='Survived', ascending=False)
-    print(out)
+    #print('\n')
+    #out = x_tr[['Cabin', 'Survived']].groupby(['Cabin'], as_index=False).mean().sort_values(by='Survived', ascending=False)
+    #print(out)
 
     print('\n')
     out = x_tr[['SibSp', 'Survived']].groupby(['SibSp'], as_index=False).mean().sort_values(by='Survived', ascending=False)
@@ -229,8 +235,13 @@ def visualize_data(x_tr,x_te):
     out = x_tr[['Parch', 'Survived']].groupby(['Parch'], as_index=False).mean().sort_values(by='Survived', ascending=False)
     print(out)
 
+    print('\n')
+    x_tr['FamilySize'] = x_tr['SibSp'] + x_tr['Parch'] + 1
+    out = x_tr[['FamilySize', 'Survived']].groupby(['FamilySize'], as_index=False).mean().sort_values(by='Survived', ascending=False)
+    print(out)
 
-    f,ax = plt.subplots(1,2,figsize=(8,4))
+
+    f,ax = plt.subplots(1,2,figsize=(8,4),sharey=True)
     #ax = x_te.hist(column='Age',by='Survived',sharey=True,xrot=45,bins=20,ec='k')
     x_tr.hist(ax=ax,column='Age',by='Survived',rot=0,bins=20,ec='k')
     ax[0].set_xlabel('Age')
@@ -242,44 +253,60 @@ def visualize_data(x_tr,x_te):
     plt.tight_layout()
     f.savefig('Age_hist')
 
-    f,ax = plt.subplots(3,2,figsize=(8,8))
+    f,ax = plt.subplots(3,2,figsize=(8,8),sharex='col',sharey='row')
     #x_te.hist(ax=ax,column='Age',by=['Pclass','Survived'],sharey=True,sharex=True,xrot=45,bins=20,ec='k')
-    x_tr.hist(ax=ax,column='Age',by=['Pclass','Survived'],xrot=45,bins=20,ec='k')
-    ax[2,0].set_xlabel('Age')
+    x_tr.hist(ax=ax,column='Age',by=['Pclass','Survived'],rot=0,bins=20,ec='k')
     ax[0,0].set_title('Pclass = 1,Survived = 0')
     ax[0,1].set_title('Pclass = 1,Survived = 1')
     ax[1,0].set_title('Pclass = 2,Survived = 0')
     ax[1,1].set_title('Pclass = 2,Survived = 1')
     ax[2,0].set_title('Pclass = 3,Survived = 0')
     ax[2,1].set_title('Pclass = 3,Survived = 1')
+    ax[2,0].set_xlabel('Age')
+    ax[2,1].set_xlabel('Age')
+    ax[0,0].grid(True)
+    ax[0,1].grid(True)
+    ax[1,0].grid(True)
+    ax[1,1].grid(True)
+    ax[2,0].grid(True)
+    ax[2,1].grid(True)
     plt.tight_layout()
     f.savefig('Pclass_hist')
 
-    f,ax = plt.subplots(3,2,figsize=(8,8))
+
 
     # clean the data for the sake of the plot
     #copy data to temp_tr so actual data set does not change and mess with the rest of the script
     port_mode = x_tr.Embarked.dropna().mode()[0]
     temp_tr = x_tr.copy()
     temp_tr['Embarked'] = temp_tr['Embarked'].fillna(port_mode)
-    temp_tr['Embarked'] = temp_tr['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
-    temp_tr['Sex'] = temp_tr['Sex'].map( {'female': 1, 'male': 0} ).astype(int)
+    #temp_tr['Embarked'] = temp_tr['Embarked'].map( {'S': 0, 'C': 1, 'Q': 2} ).astype(int)
+    #temp_tr['Sex'] = temp_tr['Sex'].map( {'female': 1, 'male': 0} ).astype(int)
 
-    #x_te.hist(ax=ax,column='Age',by=['Pclass','Survived'],sharey=True,sharex=True,xrot=45,bins=20,ec='k')
-    temp_tr.hist(ax=ax,column='Fare',by=['Embarked','Survived'],xrot=45,bins=20,ec='k')
-
-    ax[2,0].set_xlabel('Age')
-    ax[0,0].set_title('Pclass = 1,Survived = 0')
-    ax[0,1].set_title('Pclass = 1,Survived = 1')
-    ax[1,0].set_title('Pclass = 2,Survived = 0')
-    ax[1,1].set_title('Pclass = 2,Survived = 1')
-    ax[2,0].set_title('Pclass = 3,Survived = 0')
-    ax[2,1].set_title('Pclass = 3,Survived = 1')
-    plt.tight_layout()
-    f.savefig('Fare_hist')
+#    f,ax = plt.subplots(3,2,figsize=(8,8),sharey='row')
+#     #x_te.hist(ax=ax,column='Age',by=['Pclass','Survived'],sharey=True,sharex=True,xrot=45,bins=20,ec='k')
+#    temp_tr.hist(ax=ax,column='Fare',by=['Embarked','Survived'],rot=0,bins=20,ec='k')
+#    ax[0,0].set_title('Embarked = S,Survived = 0')
+#    ax[0,1].set_title('Embarked = S,Survived = 1')
+#    ax[1,0].set_title('Embarked = C,Survived = 0')
+#    ax[1,1].set_title('Embarked = C,Survived = 1')
+#    ax[2,0].set_title('Embarked = Q,Survived = 0')
+#    ax[2,1].set_title('Embarked = Q,Survived = 1')
+#    ax[2,0].set_xlabel('Fare')
+#    ax[2,1].set_xlabel('Fare')
+#    ax[0,0].grid(True)
+#    ax[0,1].grid(True)
+#    ax[1,0].grid(True)
+#    ax[1,1].grid(True)
+#    ax[2,0].grid(True)
+#    ax[2,1].grid(True)
+#    plt.tight_layout()
+#    f.savefig('Fare_hist')
 
     grid = sns.FacetGrid(temp_tr, row='Embarked', col='Survived',size=2.5,aspect=1.5)
-    g = grid.map(plt.bar, 'Sex','Fare')
+    g = grid.map(sns.barplot, 'Sex','Fare',ci=None)
+    sns.set_style("whitegrid", {'axes.grid' : True,"axes.edgecolor": "black"})
+    sns.set_context("paper", rc={'lines.edgecolor':'black'})
     g.savefig('Fare_hist')
 
 def normalize_column(data,field):

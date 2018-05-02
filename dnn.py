@@ -22,13 +22,13 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
     
     # Normalize the data for the DNN
     for column in x_tr:
-        print(column)
-        x_tr = ti.normalize_column(x_tr,column) 
-        
+        #print(column)
+        x_tr = ti.normalize_column(x_tr,column)
+
     for column in x_te:
-        print(column)
-        x_te = ti.normalize_column(x_te,column)    
-    
+        #print(column)
+        x_te = ti.normalize_column(x_te,column)
+
     classifier = tf.estimator.DNNClassifier(
         feature_columns=feature_columns,
         hidden_units=HIDDEN,
