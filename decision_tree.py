@@ -13,7 +13,7 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
     #print("Performing Decision Tree Classification!")
 
     # Create the classifier
-    decision_tree = DecisionTreeClassifier()
+    decision_tree = DecisionTreeClassifier(max_depth=7)
 
     # Train the model
     decision_tree.fit(x_tr, y_tr)

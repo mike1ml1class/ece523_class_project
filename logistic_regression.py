@@ -6,6 +6,8 @@ from sklearn.preprocessing import PolynomialFeatures
 import numpy as np
 from sklearn.model_selection import cross_val_score
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Import our modules
 import helpers as hp
@@ -14,7 +16,7 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
     #print("Performing Logistic Regression Classification!")
 
     # Create the classifier
-    clf = LogisticRegression()
+    clf = LogisticRegression(C=0.7)
 
     if (1):
 
@@ -76,40 +78,14 @@ def coefs(x_tr,y_tr,x_te=None,y_te=None):
     print(coeff_df.sort_values(by='AbsCorrelation', ascending=False))
 
 
+    f,ax = plt.subplots(figsize=(8,8))
+    ax.set_title('Pearson Correlation of Features', y=1.05, size=15)
+    sns.heatmap(x_tr.astype(float).corr(method='pearson'),linewidths=0.1,vmax=1.0,
+            square=True, cmap=plt.cm.RdBu, linecolor='white', annot=True)
+    f.savefig('pearson_corr.png')
 
-#    feats = ['Sex','Title','Age','Embarked','FamilySize','Solo','Fare','Pclass']
-#
-#
-#    for idx,feat in enumerate(feats):
-#
-#        # Subset of the data
-#        x_tr_s = x_tr[feat]
-#        x_te_s = x_te[feat]
-#
-#        # Create the classifier
-#        clf = LogisticRegression()
-#
-#        if (1):
-#
-#            # Genearate a feature matrix of polynomial combinations (Cover's Thm)
-#            poly = PolynomialFeatures(degree=3)
-#
-#            # Map or transform training data to higher level
-#            x_tr = poly.fit_transform(x_tr_s)
-#
-#            # Map or transform test data to higher level
-#            x_te = poly.fit_transform(x_te_s)
-#
-#        # Train the model
-#        clf.fit(x_tr_s, y_tr)
-#
-#         # Compute the training accuracy
-#        acc = clf.score(x_tr_s, y_tr)
-#
-#        # Compute the CV scores
-#        scores = cross_val_score(clf, x_tr_s, y_tr, cv=5)
-#
-#        print("\n")
-#        print("Logistic Regression Accuracy = %3.4f" % (acc))
-#        print("CV Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
-
+    f,ax = plt.subplots(figsize=(8,8))
+    ax.set_title('Spearman Correlation of Features', y=1.05, size=15)
+    sns.heatmap(x_tr.astype(float).corr(method='spearman'),linewidths=0.1,vmax=1.0,
+            square=True, cmap=plt.cm.RdBu, linecolor='white', annot=True)
+    f.savefig('spearman_corr.png')

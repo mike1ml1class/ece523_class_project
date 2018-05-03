@@ -13,7 +13,7 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
     #print("Performing RBF SVM Classification!")
 
     # Create the SVM classifier
-    svm = SVC(kernel='rbf',C=0.25)
+    svm = SVC(kernel='rbf',C=1)
 
     # Train the models
     svm.fit(x_tr, y_tr)

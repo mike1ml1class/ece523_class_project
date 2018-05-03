@@ -24,11 +24,12 @@ import mlp_sk  as mlp_sk
 
 # Setup and Config
 VISUALIZE       = True
-PERFORM_PCA     = False
-PERFORM_CLASS   = False
-GEN_OUTPUT      = False
+PERFORM_PCA     = True
+PERFORM_CLASS   = True
+GEN_OUTPUT      = True
 ALT_DATA        = True
 LR_CORR         = True
+NORMALIZE       = True
 NUM_DROP_LOWCOR = 0
 
 # Load the titanic training and testing data
@@ -80,6 +81,15 @@ if NUM_DROP_LOWCOR > 0:
 
             x_tr = x_tr.drop(lcs[ii] ,axis=1)
             x_te = x_te.drop(lcs[ii] ,axis=1)
+
+if NORMALIZE:
+
+    # Normalize the data
+    for column in x_tr:
+        x_tr = titanic.normalize_column(x_tr,column)
+
+    for column in x_te:
+        x_te = titanic.normalize_column(x_te,column)
 
 
 if VISUALIZE:
@@ -159,7 +169,4 @@ if GEN_OUTPUT:
     for key,clf_result in clf_results.items():
         raw = clf_result[1]
         print("%-20s & %3.4f & %0.2f & %0.2f & %0.2f\\\\" % (key,raw[2]*100,raw[0]*100,raw[1]*100,raw[3]))
-
-
-
 

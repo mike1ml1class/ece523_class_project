@@ -309,6 +309,7 @@ def visualize_data(x_tr,x_te):
     sns.set_context("paper", rc={'lines.edgecolor':'black'})
     g.savefig('Fare_hist')
 
+
 def normalize_column(data,field):
     scaler = MinMaxScaler()
     data[field] = scaler.fit_transform(data[field].values.reshape(-1,1))

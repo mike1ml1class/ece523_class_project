@@ -14,7 +14,7 @@ def analysis(x_tr,y_tr,x_te=None,y_te=None):
     #print("Performing Linear SVM Classification!")
 
     # Create the SVM classifier
-    svm = SVC(kernel='linear',C=0.25)
+    svm = SVC(kernel='linear',C=1)
 
     if (0):
 
